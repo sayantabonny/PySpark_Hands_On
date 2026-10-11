@@ -1,0 +1,48 @@
+{
+  "batch": "B006",
+  "purpose": "Replay: idempotency",
+  "recommended_as_of": "2026-09-17T08:00:00+00:00",
+  "files": {
+    "total": 2,
+    "by_status": {
+      "DUPLICATE": 2
+    },
+    "rejected": {},
+    "by_source": {
+      "helpdesk": 1,
+      "crm_cdc": 1
+    }
+  },
+  "rows": {
+    "delivered": 479,
+    "in_loaded_files": 0,
+    "parse_quarantine": 0,
+    "dq_quarantine": 0,
+    "nullified": 0,
+    "stale_ignored": 0,
+    "duplicate_noop": 0
+  },
+  "rule_hits": {},
+  "rule_violation_pct": {},
+  "threshold_breaches": [],
+  "expected_events": [
+    "Zero data changes; the copy is DUPLICATE"
+  ],
+  "silver_ticket": {
+    "inserted": 0,
+    "updated": 0,
+    "keys_after": 22831,
+    "helpdesk_keys": 13504,
+    "callcenter_keys": 9327,
+    "enrichment_after_drain": {
+      "PERMANENT_FAILURE:CONTENT_FILTERED": 12,
+      "PERMANENT_FAILURE:INVALID_JSON": 7,
+      "PERMANENT_FAILURE:OUTPUT_TRUNCATED": 6,
+      "PERMANENT_FAILURE:RATE_LIMITED": 3,
+      "PERMANENT_FAILURE:SCHEMA_VIOLATION": 10,
+      "SKIPPED": 548,
+      "SUCCESS": 22229,
+      "SUCCESS_AFTER_RETRY": 16
+    }
+  }
+}

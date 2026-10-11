@@ -1,0 +1,89 @@
+{
+  "batch": "B005",
+  "purpose": "Recovery: corrected re-deliveries",
+  "recommended_as_of": "2026-09-16T08:00:00+00:00",
+  "files": {
+    "total": 7,
+    "by_status": {
+      "LOADED": 7
+    },
+    "rejected": {},
+    "by_source": {
+      "crm": 1,
+      "helpdesk": 4,
+      "crm_cdc": 1,
+      "agents": 1
+    }
+  },
+  "rows": {
+    "delivered": 6390,
+    "in_loaded_files": 6390,
+    "parse_quarantine": 0,
+    "dq_quarantine": 24,
+    "nullified": 19,
+    "stale_ignored": 497,
+    "duplicate_noop": 1
+  },
+  "rule_hits": {
+    "R-CUS-001": 1,
+    "R-CUS-003": 3,
+    "R-CUS-004": 3,
+    "R-TKT-001": 7,
+    "R-TKT-002": 2,
+    "R-TKT-003": 4,
+    "R-TKT-005": 5,
+    "R-TKT-006": 2,
+    "R-TKT-007": 3,
+    "R-TKT-008": 4,
+    "R-TKT-009": 3,
+    "R-TKT-011": 6,
+    "R-TKT-012": 2,
+    "R-TKT-015": 64,
+    "SYS-DUP-CONFLICT": 1
+  },
+  "rule_violation_pct": {
+    "R-CUS-001": 0.02,
+    "R-CUS-003": 0.06,
+    "R-CUS-004": 0.06,
+    "R-TKT-001": 0.789,
+    "R-TKT-002": 0.225,
+    "R-TKT-003": 0.451,
+    "R-TKT-005": 0.564,
+    "R-TKT-006": 0.225,
+    "R-TKT-007": 0.338,
+    "R-TKT-008": 0.451,
+    "R-TKT-009": 0.338,
+    "R-TKT-011": 0.676,
+    "R-TKT-012": 0.225,
+    "R-TKT-015": 7.215,
+    "SYS-DUP-CONFLICT": 0.113
+  },
+  "threshold_breaches": [],
+  "expected_events": [
+    "Corrected files LOADED; older versions inside them may be STALE",
+    "S26: add alias createdAt -> created_at and REPROCESS the B004 file"
+  ],
+  "silver_ticket": {
+    "inserted": 210,
+    "updated": 142,
+    "keys_after": 22831,
+    "helpdesk_keys": 13504,
+    "callcenter_keys": 9327,
+    "enrichment_after_drain": {
+      "PERMANENT_FAILURE:CONTENT_FILTERED": 12,
+      "PERMANENT_FAILURE:INVALID_JSON": 7,
+      "PERMANENT_FAILURE:OUTPUT_TRUNCATED": 6,
+      "PERMANENT_FAILURE:RATE_LIMITED": 3,
+      "PERMANENT_FAILURE:SCHEMA_VIOLATION": 10,
+      "SKIPPED": 548,
+      "SUCCESS": 22229,
+      "SUCCESS_AFTER_RETRY": 16
+    }
+  },
+  "silver_customer": {
+    "snapshot_date": "2026-09-14",
+    "file_status": "LOADED",
+    "rows_after": 5030,
+    "active_after": 4969
+  }
+}

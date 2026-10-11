@@ -1,0 +1,24 @@
+FP-001 — Helpdesk queue classification
+Run this on Windows local Spark with your winutils/Delta setup. The support operations team needs a consistent queue label for each helpdesk ticket so agents can prioritize follow-up.
+Input: Read only *.jsonl files directly under:
+D:\Project_AI\PySpark_Hands_On\Input\landing\helpdesk\tickets\arrival_date=2026-06-18\
+(Note: this June folder is not in the moved Input subset; FP-001 was completed against the original copy under D:\Project_AI\SupportIQ\.lake\landing.)
+The required input schema is:
+ticket_id STRING
+status STRING
+priority STRING
+Other source fields are outside this exercise.
+Business rules: Compare trimmed, case-insensitive status and priority values, but preserve the original input strings in the output. Apply these rules in order:
+1. SOLVED or CLOSED → CLOSED_NO_FOLLOW_UP
+2. PENDING or ON-HOLD → WAITING_FOR_CUSTOMER
+3. NEW or OPEN with priority URGENT or HIGH → ESCALATE
+4. NEW or OPEN with priority NORMAL or LOW → STANDARD_QUEUE
+5. All other or missing combinations → NEEDS_REVIEW
+Output: Overwrite a Delta dataset at:
+D:\Project_AI\PySpark_Hands_On\Output\focused\FP-001_queue_action
+Output schema:
+ticket_id STRING
+status STRING
+priority STRING
+queue_action STRING
+Acceptance criteria: Keep exactly one output row per input row. queue_action must follow the rules above and contain only the five specified values. Submit your PySpark code, input/output row counts, counts by queue_action, and a brief explanation of rule precedence and fallback behavior. Save Spark UI analysis for after I review your implementation.

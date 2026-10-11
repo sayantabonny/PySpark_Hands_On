@@ -1,0 +1,111 @@
+{
+  "batch": "B003",
+  "purpose": "Drift tolerance, ordering and duplicates",
+  "recommended_as_of": "2026-09-14T23:00:00+00:00",
+  "files": {
+    "total": 15,
+    "by_status": {
+      "LOADED": 14,
+      "DUPLICATE": 1
+    },
+    "rejected": {},
+    "by_source": {
+      "crm": 1,
+      "callcenter": 2,
+      "helpdesk": 11,
+      "crm_cdc": 1
+    }
+  },
+  "rows": {
+    "delivered": 8130,
+    "in_loaded_files": 7853,
+    "parse_quarantine": 7,
+    "dq_quarantine": 72,
+    "nullified": 49,
+    "stale_ignored": 20,
+    "duplicate_noop": 47
+  },
+  "rule_hits": {
+    "R-CUS-001": 1,
+    "R-CUS-002": 1,
+    "R-CUS-003": 1,
+    "R-CUS-004": 4,
+    "R-TKT-001": 19,
+    "R-TKT-002": 7,
+    "R-TKT-003": 5,
+    "R-TKT-004": 12,
+    "R-TKT-005": 8,
+    "R-TKT-006": 6,
+    "R-TKT-007": 12,
+    "R-TKT-008": 12,
+    "R-TKT-009": 14,
+    "R-TKT-010": 2,
+    "R-TKT-011": 14,
+    "R-TKT-012": 71,
+    "R-TKT-013": 6,
+    "R-TKT-015": 126,
+    "R-TKT-016": 6,
+    "R-TKT-017": 1,
+    "R-TKT-018": 1,
+    "SYS-CAST": 8,
+    "SYS-DRIFT-EXTRA": 406,
+    "SYS-DUP-CONFLICT": 12,
+    "SYS-PARSE": 7
+  },
+  "rule_violation_pct": {
+    "R-CUS-001": 0.02,
+    "R-CUS-002": 0.02,
+    "R-CUS-003": 0.02,
+    "R-CUS-004": 0.08,
+    "R-TKT-001": 0.685,
+    "R-TKT-002": 0.253,
+    "R-TKT-003": 0.18,
+    "R-TKT-004": 0.433,
+    "R-TKT-005": 0.289,
+    "R-TKT-006": 0.216,
+    "R-TKT-007": 0.433,
+    "R-TKT-008": 0.433,
+    "R-TKT-009": 0.505,
+    "R-TKT-010": 0.072,
+    "R-TKT-011": 0.505,
+    "R-TKT-012": 2.561,
+    "R-TKT-013": 0.216,
+    "R-TKT-015": 4.545,
+    "R-TKT-016": 0.216,
+    "R-TKT-017": 0.036,
+    "R-TKT-018": 0.036,
+    "SYS-CAST": 0.289,
+    "SYS-DRIFT-EXTRA": 14.646,
+    "SYS-DUP-CONFLICT": 0.433,
+    "SYS-PARSE": 0.253
+  },
+  "threshold_breaches": [],
+  "expected_events": [
+    "SCHEMA_DRIFT events for S24/S26B files",
+    "SYS-DUP-CONFLICT for S18 pairs",
+    "S19 copy -> DUPLICATE"
+  ],
+  "silver_ticket": {
+    "inserted": 1027,
+    "updated": 1000,
+    "keys_after": 16452,
+    "helpdesk_keys": 8071,
+    "callcenter_keys": 8381,
+    "enrichment_after_drain": {
+      "PERMANENT_FAILURE:CONTENT_FILTERED": 12,
+      "PERMANENT_FAILURE:INVALID_JSON": 6,
+      "PERMANENT_FAILURE:OUTPUT_TRUNCATED": 6,
+      "PERMANENT_FAILURE:RATE_LIMITED": 3,
+      "PERMANENT_FAILURE:SCHEMA_VIOLATION": 8,
+      "SKIPPED": 493,
+      "SUCCESS": 15909,
+      "SUCCESS_AFTER_RETRY": 15
+    }
+  },
+  "silver_customer": {
+    "snapshot_date": "2026-09-13",
+    "file_status": "LOADED",
+    "rows_after": 5020,
+    "active_after": 4960
+  }
+}

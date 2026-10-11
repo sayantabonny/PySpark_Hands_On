@@ -1,0 +1,97 @@
+{
+  "batch": "B002",
+  "purpose": "Normal day",
+  "recommended_as_of": "2026-09-13T23:00:00+00:00",
+  "files": {
+    "total": 10,
+    "by_status": {
+      "LOADED": 10
+    },
+    "rejected": {},
+    "by_source": {
+      "crm": 1,
+      "callcenter": 1,
+      "helpdesk": 6,
+      "products": 1,
+      "crm_cdc": 1
+    }
+  },
+  "rows": {
+    "delivered": 7425,
+    "in_loaded_files": 7425,
+    "parse_quarantine": 13,
+    "dq_quarantine": 56,
+    "nullified": 49,
+    "stale_ignored": 0,
+    "duplicate_noop": 53
+  },
+  "rule_hits": {
+    "R-CUS-001": 3,
+    "R-CUS-002": 1,
+    "R-CUS-003": 3,
+    "R-TKT-001": 17,
+    "R-TKT-002": 4,
+    "R-TKT-003": 7,
+    "R-TKT-004": 2,
+    "R-TKT-005": 6,
+    "R-TKT-006": 2,
+    "R-TKT-007": 14,
+    "R-TKT-008": 13,
+    "R-TKT-009": 19,
+    "R-TKT-010": 3,
+    "R-TKT-011": 11,
+    "R-TKT-012": 43,
+    "R-TKT-013": 3,
+    "R-TKT-015": 97,
+    "R-TKT-016": 3,
+    "SYS-DUP-CONFLICT": 1,
+    "SYS-PARSE": 13
+  },
+  "rule_violation_pct": {
+    "R-CUS-001": 0.06,
+    "R-CUS-002": 0.02,
+    "R-CUS-003": 0.06,
+    "R-TKT-001": 0.735,
+    "R-TKT-002": 0.173,
+    "R-TKT-003": 0.303,
+    "R-TKT-004": 0.086,
+    "R-TKT-005": 0.259,
+    "R-TKT-006": 0.086,
+    "R-TKT-007": 0.605,
+    "R-TKT-008": 0.562,
+    "R-TKT-009": 0.821,
+    "R-TKT-010": 0.13,
+    "R-TKT-011": 0.475,
+    "R-TKT-012": 1.858,
+    "R-TKT-013": 0.13,
+    "R-TKT-015": 4.192,
+    "R-TKT-016": 0.13,
+    "SYS-DUP-CONFLICT": 0.043,
+    "SYS-PARSE": 0.562
+  },
+  "threshold_breaches": [],
+  "expected_events": [],
+  "silver_ticket": {
+    "inserted": 799,
+    "updated": 1035,
+    "keys_after": 15425,
+    "helpdesk_keys": 7351,
+    "callcenter_keys": 8074,
+    "enrichment_after_drain": {
+      "PERMANENT_FAILURE:CONTENT_FILTERED": 11,
+      "PERMANENT_FAILURE:INVALID_JSON": 6,
+      "PERMANENT_FAILURE:OUTPUT_TRUNCATED": 6,
+      "PERMANENT_FAILURE:RATE_LIMITED": 3,
+      "PERMANENT_FAILURE:SCHEMA_VIOLATION": 8,
+      "SKIPPED": 476,
+      "SUCCESS": 14900,
+      "SUCCESS_AFTER_RETRY": 15
+    }
+  },
+  "silver_customer": {
+    "snapshot_date": "2026-09-12",
+    "file_status": "LOADED",
+    "rows_after": 5010,
+    "active_after": 4950
+  }
+}

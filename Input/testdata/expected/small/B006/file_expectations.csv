@@ -1,0 +1,3 @@
+file,source,expected_status,reason,rows,parse_quarantine,dq_quarantine,nullified,rule_hits,scenarios,control_file,expected_after_fix
+helpdesk/tickets/arrival_date=2026-09-17/helpdesk_tickets_20260917T060000Z_0001.jsonl,helpdesk,DUPLICATE,SAME_CONTENT_AS:helpdesk/tickets/arrival_date=2026-09-14/helpdesk_tickets_20260914T200000Z_0001.jsonl,423,0,0,0,{},S19,present,
+crm/customer_changes/arrival_date=2026-09-17/crm_customer_changes_20260917T040000Z_0001.jsonl,crm_cdc,DUPLICATE,SAME_CONTENT_AS:crm/customer_changes/arrival_date=2026-09-14/crm_customer_changes_20260914T030000Z_0001.jsonl,56,0,0,0,{},S19;S35,none,

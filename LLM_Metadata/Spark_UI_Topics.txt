@@ -1,0 +1,376 @@
+Core Objective:
+a. DAG Analysis
+b. Stage Analysis
+c. Task Analysis
+d. Shuffle Mechanics
+e. Narrow vs Wide Transformations
+f. Exchange Operators
+g. Catalyst Optimizer
+h. Tungsten Engine
+i. Whole Stage Code Generation
+j. Adaptive Query Execution (AQE)
+k. Dynamic Partition Pruning
+l. Predicate Pushdown
+m. Column Pruning
+n. Broadcast Thresholds
+o. Shuffle Partition Tuning
+p. Executor Sizing
+q. Partition Sizing
+r. Memory Management
+s. Spill Handling
+t. Skew Analysis
+
+
+
+Operations:
+
+1. Lazy Evaluation
+
+Experiments:
+df.filter(...)
+df.select(...)
+df.withColumn(...)
+Observe:
+- Why Spark UI remains empty.
+- Why transformations create no jobs.
+
+Then execute:
+count()
+
+Observe:
+- Job creation.
+- Stage creation.
+Explain DAG creation.
+
+---
+2. Reading Files
+
+Experiments:
+Read file without inferSchema.
+Read file with inferSchema.
+
+Compare:
+df.explain(True)
+Spark UI
+SQL Tab
+Jobs Tab
+
+Teach:
+- Extra scan
+- Schema inference cost
+- Additional jobs
+- Why inferSchema is expensive
+
+---
+
+3. Understanding Jobs
+
+Experiments:
+df.count()
+df.show()
+df.collect()
+df.write.parquet(...)
+
+For each operation:
+User must identify:
+- Number of jobs
+- Why jobs differ
+- Which action triggered them
+
+Teach job boundaries.
+
+---
+
+4. Understanding Stages
+
+Experiments:
+df.filter(...)
+df.select(...)
+df.groupBy(...).count()
+df.join(...)
+
+Observe:
+- Stage count
+- Stage DAG
+
+Teach:
+- Narrow transformation
+- Wide transformation
+
+Explain why wide transformations create stage boundaries.
+
+---
+
+5. Understanding Tasks
+
+Experiments:
+df.rdd.getNumPartitions()
+Observe task count.
+User must correlate:
+Partitions → Tasks
+
+Teach:
+One partition = One task.
+
+Experiments:
+repartition(5)
+repartition(20)
+repartition(100)
+Observe task changes.
+
+---
+
+6. Partitions Deep Dive
+
+Teach:
+
+- Input partitions
+- Shuffle partitions
+- Output partitions
+
+Experiments:
+spark.conf.get("spark.sql.shuffle.partitions")
+Observe default:
+200
+
+Then modify:
+spark.conf.set(
+    "spark.sql.shuffle.partitions",
+    "10"
+)
+
+Run aggregation.
+Compare Spark UI.
+
+Observe:
+- Reduced tasks
+- Reduced shuffle partitions
+
+Explain why Spark defaults to 200.
+
+---
+
+7. Shuffle Deep Dive
+
+Experiments:
+groupBy()
+distinct()
+dropDuplicates()
+join()
+
+Observe:
+Stages
+Shuffle Read
+Shuffle Write
+
+Teach:
+- Why data moves
+- What causes shuffle
+- Cost of shuffle
+
+User must compare:
+No Shuffle Transformation
+vs
+Shuffle Transformation
+
+---
+
+8. Exchange Operators
+
+Use:
+
+df.explain(True)
+
+Teach:
+- Exchange
+- HashPartitioning
+- RoundRobinPartitioning
+
+Connect physical plan to Spark UI.
+
+---
+
+9. Joins and Spark UI
+
+Experiments:
+Broadcast Join
+Sort Merge Join
+Shuffle Hash Join
+User must inspect:
+
+SQL Tab
+DAG
+Shuffle Metrics
+
+Teach:
+
+- Why Spark chooses each join
+- Broadcast exchange
+
+---
+
+10. Caching and Persistence
+
+Experiments:
+
+df.cache()
+df.persist()
+
+Observe:
+Storage Tab
+
+Teach:
+- Memory usage
+- Cache hit
+- Cache miss
+
+---
+
+11. Skew Analysis
+
+Generate skewed data.
+
+Observe:
+Tasks duration.
+
+Questions:
+- Which task is slow?
+- Why?
+
+Teach:
+- Data skew
+- Long-running tasks
+- Stragglers
+
+---
+
+12. SQL Tab Deep Dive
+
+Teach:
+
+- SQL DAG
+- Physical Plan
+- Adaptive Query Execution
+- Whole Stage Code Generation
+
+User must correlate:
+SQL Plan
+with
+Stages
+with
+Tasks
+
+---
+
+13. Adaptive Query Execution
+
+Enable:
+spark.conf.set(
+    "spark.sql.adaptive.enabled",
+    "true"
+)
+
+Observe:
+Plan changes.
+
+Teach:
+- Dynamic optimization
+- Coalesced partitions
+- Runtime statistics
+
+---
+
+14. Executor Metrics
+
+Teach:
+
+- Input Size
+- Output Size
+- Executor Run Time
+- Executor CPU Time
+- GC Time
+- Serialization Time
+- Deserialization Time
+
+Use Spark UI metrics for explanation.
+
+---
+
+15. Memory Internals
+
+Teach:
+
+- Execution Memory
+- Storage Memory
+- Unified Memory Manager
+
+Use Spark UI memory metrics.
+
+---
+
+16. Intentional Failure Lab
+
+Create failures intentionally.
+
+Experiment 1:
+Very low driver memory.
+spark.driver.memory=512m
+
+Perform:
+collect()
+
+Analyze:
+OutOfMemory Error
+Spark UI
+Driver Logs
+
+---
+
+Experiment 2:
+Huge repartition.
+repartition(5000)
+
+Analyze:
+Task explosion
+Scheduling overhead
+
+---
+
+Experiment 3:
+Large groupBy.
+
+Observe:
+Shuffle spill
+Disk spill
+Memory pressure
+
+---
+
+Experiment 4:
+Broadcast oversized table.
+
+Analyze:
+Broadcast failure
+
+---
+
+17. Reading Spark UI Like Production Engineers
+
+For every future experiment train the user to inspect:
+
+1. Jobs Tab
+2. Stages Tab
+3. SQL Tab
+4. Executors Tab
+5. Storage Tab
+6. Environment Tab
+
+The user must always answer:
+
+- What happened?
+- Why did it happen?
+- Which stage caused it?
+- Which task caused it?
+- Was shuffle involved?
+- How much data moved?
+- Was memory sufficient?

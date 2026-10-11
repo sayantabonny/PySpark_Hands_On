@@ -1,0 +1,9 @@
+{
+  "seed": 424242,
+  "profile": {"helpdesk_tickets_per_day": 300, "callcenter_calls_per_day": 200},
+  "mix": {"valid": 80.0, "mild": 8.0, "nullify": 3.0, "dq_error": 5.0, "malformed": 2.0,
+          "exact_duplicate": 2.0},
+  "skew": {"placeholder_customer_share": 0.10, "incident_multiplier": 4.0},
+  "text": {"llm_problem_share": 0.05},
+  "scenarios": {"s22_malformed_ratio": 0.20, "golden_set_size": 100}
+}

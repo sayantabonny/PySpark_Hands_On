@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "handson-datagen"
+version = "2.0.0"
+description = "Deterministic, labelled practice data for hands-on PySpark (standard library only)"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+handson-datagen = "data_generator.main:main"
+
+[tool.setuptools.packages.find]
+include = ["data_generator*"]

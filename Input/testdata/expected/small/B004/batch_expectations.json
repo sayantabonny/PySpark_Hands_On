@@ -1,0 +1,108 @@
+{
+  "batch": "B004",
+  "purpose": "Incident day and rejections",
+  "recommended_as_of": "2026-09-15T23:00:00+00:00",
+  "files": {
+    "total": 20,
+    "by_status": {
+      "REJECTED": 6,
+      "LOADED": 14
+    },
+    "rejected": {
+      "crm/customers/arrival_date=2026-09-15/crm_customers_20260914_20260915T020000Z.csv": "PARTIAL_SNAPSHOT",
+      "helpdesk/tickets/arrival_date=2026-09-15/helpdesk_tickets_20260915T040000Z_0002.jsonl": "MALFORMED_RATIO",
+      "helpdesk/tickets/arrival_date=2026-09-15/helpdesk_tickets_20260915T080000Z_0003.jsonl": "CONTROL_MISMATCH",
+      "helpdesk/tickets/arrival_date=2026-09-15/helpdesk_tickets_20260915T120000Z_0003.jsonl": "CONTROL_FILE_MISSING",
+      "helpdesk/tickets/arrival_date=2026-09-15/helpdesk_tickets_20260915T160000Z_0003.jsonl": "MISSING_REQUIRED_FIELD:priority",
+      "helpdesk/tickets/arrival_date=2026-09-15/helpdesk_tickets_20260915T200000Z_0002.jsonl": "MISSING_REQUIRED_FIELD:created_at"
+    },
+    "by_source": {
+      "crm": 1,
+      "callcenter": 2,
+      "helpdesk": 14,
+      "products": 1,
+      "crm_cdc": 1,
+      "billing": 1
+    }
+  },
+  "rows": {
+    "delivered": 19684,
+    "in_loaded_files": 15636,
+    "parse_quarantine": 46,
+    "dq_quarantine": 391,
+    "nullified": 225,
+    "stale_ignored": 0,
+    "duplicate_noop": 206
+  },
+  "rule_hits": {
+    "R-TKT-001": 95,
+    "R-TKT-002": 106,
+    "R-TKT-003": 108,
+    "R-TKT-004": 26,
+    "R-TKT-005": 22,
+    "R-TKT-006": 27,
+    "R-TKT-007": 86,
+    "R-TKT-008": 69,
+    "R-TKT-009": 74,
+    "R-TKT-010": 10,
+    "R-TKT-011": 71,
+    "R-TKT-012": 80,
+    "R-TKT-013": 6,
+    "R-TKT-015": 626,
+    "R-TKT-016": 6,
+    "R-TKT-017": 1,
+    "R-TKT-018": 1,
+    "SYS-CAST": 1,
+    "SYS-PARSE": 46
+  },
+  "rule_violation_pct": {
+    "R-TKT-001": 0.858,
+    "R-TKT-002": 0.957,
+    "R-TKT-003": 0.975,
+    "R-TKT-004": 0.235,
+    "R-TKT-005": 0.199,
+    "R-TKT-006": 0.244,
+    "R-TKT-007": 0.777,
+    "R-TKT-008": 0.623,
+    "R-TKT-009": 0.668,
+    "R-TKT-010": 0.09,
+    "R-TKT-011": 0.641,
+    "R-TKT-012": 0.722,
+    "R-TKT-013": 0.054,
+    "R-TKT-015": 5.652,
+    "R-TKT-016": 0.054,
+    "R-TKT-017": 0.009,
+    "R-TKT-018": 0.009,
+    "SYS-CAST": 0.009,
+    "SYS-PARSE": 0.415
+  },
+  "threshold_breaches": [],
+  "expected_events": [
+    "DEVIATION: daily_volume (incident, S29)",
+    "Files REJECTED: S22 MALFORMED_RATIO, S23A CONTROL_MISMATCH, S23B CONTROL_FILE_MISSING, S25/S26 MISSING_REQUIRED_FIELD",
+    "CRM REJECTED: PARTIAL_SNAPSHOT"
+  ],
+  "silver_ticket": {
+    "inserted": 6169,
+    "updated": 958,
+    "keys_after": 22621,
+    "helpdesk_keys": 13294,
+    "callcenter_keys": 9327,
+    "enrichment_after_drain": {
+      "PERMANENT_FAILURE:CONTENT_FILTERED": 12,
+      "PERMANENT_FAILURE:INVALID_JSON": 7,
+      "PERMANENT_FAILURE:OUTPUT_TRUNCATED": 6,
+      "PERMANENT_FAILURE:RATE_LIMITED": 3,
+      "PERMANENT_FAILURE:SCHEMA_VIOLATION": 10,
+      "SKIPPED": 548,
+      "SUCCESS": 22019,
+      "SUCCESS_AFTER_RETRY": 16
+    }
+  },
+  "silver_customer": {
+    "snapshot_date": "2026-09-14",
+    "file_status": "REJECTED",
+    "rows_after": 5020,
+    "active_after": 4960
+  }
+}

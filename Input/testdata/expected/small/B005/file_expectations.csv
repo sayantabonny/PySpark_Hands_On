@@ -1,0 +1,8 @@
+file,source,expected_status,reason,rows,parse_quarantine,dq_quarantine,nullified,rule_hits,scenarios,control_file,expected_after_fix
+crm/customers/arrival_date=2026-09-16/crm_customers_20260914_20260916T020000Z.csv,crm,LOADED,,5025,0,1,6,"{""R-CUS-001"":1,""R-CUS-003"":3,""R-CUS-004"":3,""SYS-DUP-CONFLICT"":1}",,none,
+helpdesk/tickets/arrival_date=2026-09-16/helpdesk_tickets_20260916T060000Z_0001.jsonl,helpdesk,LOADED,,90,0,4,1,"{""R-TKT-001"":1,""R-TKT-005"":1,""R-TKT-007"":2,""R-TKT-011"":1,""R-TKT-015"":9}",S22-FIXED,present,
+helpdesk/tickets/arrival_date=2026-09-16/helpdesk_tickets_20260916T060000Z_0002.jsonl,helpdesk,LOADED,,228,0,6,1,"{""R-TKT-001"":1,""R-TKT-003"":2,""R-TKT-005"":3,""R-TKT-008"":1,""R-TKT-015"":13}",S23A-FIXED,present,
+helpdesk/tickets/arrival_date=2026-09-16/helpdesk_tickets_20260916T060000Z_0003.jsonl,helpdesk,LOADED,,283,0,6,7,"{""R-TKT-001"":2,""R-TKT-002"":1,""R-TKT-005"":1,""R-TKT-006"":1,""R-TKT-007"":1,""R-TKT-008"":2,""R-TKT-009"":1,""R-TKT-011"":4,""R-TKT-012"":1,""R-TKT-015"":24}",S23B-FIXED,present,
+helpdesk/tickets/arrival_date=2026-09-16/helpdesk_tickets_20260916T060000Z_0004.jsonl,helpdesk,LOADED,,286,0,7,4,"{""R-TKT-001"":3,""R-TKT-002"":1,""R-TKT-003"":2,""R-TKT-006"":1,""R-TKT-008"":1,""R-TKT-009"":2,""R-TKT-011"":1,""R-TKT-012"":1,""R-TKT-015"":18}",S25-FIXED,present,
+crm/customer_changes/arrival_date=2026-09-16/crm_customer_changes_20260916T030000Z_0001.jsonl,crm_cdc,LOADED,,40,0,0,0,{},S35,none,
+reference/agents/arrival_date=2026-09-16/agent_roster_20260915_20260916T040000Z.csv,agents,LOADED,,438,0,0,0,{},S36,none,

@@ -1,0 +1,41 @@
+product_code,product_name,family_code,family_name,business_unit,launch_date,retired_date,is_active
+ALERTING,Alerting,MESSAGING,Messaging,Engagement,2024-05-01,,Y
+ANALYTICS,Analytics,DATA,Data & Analytics,Data & Integration,2021-02-28,,Y
+API-GATEWAY,Api Gateway,PLATFORM,Developer Platform,Core Platform,2024-04-29,,Y
+AUDIT-LOG,Audit Log,DATA,Data & Analytics,Data & Integration,2024-06-09,,Y
+BACKUP,Backup,DATA,Data & Analytics,Data & Integration,2020-05-14,,Y
+BILLING-PORTAL,Billing Portal,BILLING,Billing & Payments,Commerce,2023-09-18,,Y
+CALENDAR-SYNC,Calendar Sync,INTEGRATIONS,Integrations,Data & Integration,2020-05-09,,Y
+CHAT-WIDGET,Chat Widget,MESSAGING,Messaging,Engagement,2019-06-19,,Y
+CLI-TOOLS,Cli Tools,PLATFORM,Developer Platform,Core Platform,2018-04-26,,Y
+CRM-CONNECTOR,Crm Connector,INTEGRATIONS,Integrations,Data & Integration,2021-09-12,,Y
+DASHBOARDS,Dashboards,DATA,Data & Analytics,Data & Integration,2018-11-23,,Y
+DATA-EXPORT,Data Export,DATA,Data & Analytics,Data & Integration,2019-05-29,,Y
+DATA-IMPORT,Data Import,DATA,Data & Analytics,Data & Integration,2020-12-03,,Y
+EMAIL-DELIVERY,Email Delivery,MESSAGING,Messaging,Engagement,2020-11-02,,Y
+ERP-CONNECTOR,Erp Connector,INTEGRATIONS,Integrations,Data & Integration,2022-06-25,,Y
+FILE-STORAGE,File Storage,WORKFLOW,Workflow & Content,Engagement,2018-11-11,,Y
+IDENTITY-MFA,Identity Mfa,IDENTITY,Identity & Access,Core Platform,2021-05-23,,Y
+INTEGRATIONS-HUB,Integrations Hub,INTEGRATIONS,Integrations,Data & Integration,2018-09-13,,Y
+KNOWLEDGE-BASE,Knowledge Base,WORKFLOW,Workflow & Content,Engagement,2024-03-20,,Y
+LICENSING,Licensing,BILLING,Billing & Payments,Commerce,2020-07-07,,Y
+LOGIN-SSO,Login Sso,IDENTITY,Identity & Access,Core Platform,2023-01-25,,Y
+MARKETPLACE,Marketplace,BILLING,Billing & Payments,Commerce,2021-08-20,,Y
+MOBILE-ANDROID,Mobile Android,MOBILE,Mobile Apps,Core Platform,2021-01-07,,Y
+MOBILE-IOS,Mobile Ios,MOBILE,Mobile Apps,Core Platform,2021-11-10,,Y
+NOTIFICATIONS,Notifications,MESSAGING,Messaging,Engagement,2020-11-19,,Y
+ONBOARDING,Onboarding,WORKFLOW,Workflow & Content,Engagement,2024-01-31,,Y
+PAYMENTS,Payments,BILLING,Billing & Payments,Commerce,2018-03-18,,Y
+REPORTING,Reporting,DATA,Data & Analytics,Data & Integration,2018-11-19,,Y
+SANDBOX,Sandbox,PLATFORM,Developer Platform,Core Platform,2020-01-05,,Y
+SCHEDULER,Scheduler,WORKFLOW,Workflow & Content,Engagement,2022-02-24,,Y
+SDK-JAVA,Sdk Java,PLATFORM,Developer Platform,Core Platform,2020-04-19,,Y
+SDK-PYTHON,Sdk Python,PLATFORM,Developer Platform,Core Platform,2023-12-20,,Y
+SEARCH,Search,DATA,Data & Analytics,Data & Integration,2020-09-15,,Y
+SMS-GATEWAY,Sms Gateway,MESSAGING,Messaging,Engagement,2018-03-16,,Y
+STATUS-PAGE,Status Page,PLATFORM,Developer Platform,Core Platform,2020-04-06,,Y
+TRANSLATION,Translation,WORKFLOW,Workflow & Content,Engagement,2020-07-07,,Y
+USER-ADMIN,User Admin,IDENTITY,Identity & Access,Core Platform,2019-08-27,,Y
+WEB-CONSOLE,Web Console,PLATFORM,Developer Platform,Core Platform,2021-10-02,,Y
+WEBHOOKS,Webhooks,INTEGRATIONS,Integrations,Data & Integration,2021-02-26,,Y
+WORKFLOW-ENGINE,Workflow Engine,WORKFLOW,Workflow & Content,Engagement,2022-03-07,,Y

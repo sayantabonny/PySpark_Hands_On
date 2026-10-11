@@ -1,0 +1,54 @@
+FP-002 — Current helpdesk ticket state (one row per ticket)
+
+Environment: Windows local Spark 4.0.1 with your winutils/Delta setup.
+
+Business need: Support analytics needs the current state of every helpdesk ticket received during one week, with lineage to the delivery file, and an auditable count of records that could not be used.
+
+Input
+- Root: D:\Project_AI\PySpark_Hands_On\Input\landing\helpdesk\tickets\
+- Sub-folders are named arrival_date=YYYY-MM-DD. Use only the folders 2026-09-02 through 2026-09-08 inclusive, and only *.jsonl files inside them (each line is one JSON ticket record).
+- Read these fields (all STRING in the source): ticket_id, status, priority, updated_at. Other source fields are outside this exercise.
+- updated_at contract: producers send one of
+    a) ISO-8601 with 'Z' or a numeric offset, optional milliseconds (e.g. 2026-09-02T01:01:35+01:00)
+    b) yyyy-MM-dd HH:mm:ss, which means UTC
+    c) Unix epoch milliseconds as a digit string
+- Delivery order: in this landing area, a later full file path in ascending string order is a later delivery.
+
+Record rules (apply in this order; the first failing rule is the reject reason)
+1. MALFORMED_RECORD — the line cannot be parsed as a JSON record.
+2. MISSING_TICKET_ID — ticket_id is null or blank after trimming.
+3. INVALID_UPDATED_AT — updated_at is null, blank, or not interpretable under the contract.
+All other records are valid. The ticket key is ticket_id after trimming.
+
+Current-state rule
+For each ticket key, keep exactly one valid record: the latest updated_at instant. If tied, prefer the later delivery file. If still tied, choose any record, but the choice must be identical on every rerun. Do not merge fields across versions.
+
+Output 1 — current state (overwrite Delta)
+- Path:  D:\Project_AI\PySpark_Hands_On\Output\focused\FP-002_ticket_current
+- Table: FP_002_ticket_current
+- Schema:
+    ticket_id       STRING     trimmed key
+    status          STRING     as received
+    priority        STRING     as received
+    updated_at_raw  STRING     as received
+    updated_at_utc  TIMESTAMP  the instant represented by updated_at
+    _source_file    STRING     full path of the file the kept record came from
+    version_count   INT        number of valid records received for this ticket in the window
+
+Output 2 — rejects (overwrite Delta)
+- Path:  D:\Project_AI\PySpark_Hands_On\Output\focused\FP-002_ticket_rejects
+- Table: FP_002_ticket_rejects
+- Schema: _source_file STRING, ticket_id STRING (as received, may be null), updated_at_raw STRING, reject_reason STRING
+
+Acceptance criteria
+- Input records read = valid records + rejected records.
+- Output 1 has exactly one row per ticket key; its row count equals the number of distinct valid ticket keys; sum(version_count) equals valid records.
+- reject_reason contains only the three values above.
+- The current-state choice is deterministic across reruns.
+- No *.jsonl file outside the seven folders and no non-jsonl file is read.
+
+Submit
+- Code (notebook with outputs saved).
+- Counts: files read, input records, rejects by reason, valid records, output rows, sum(version_count), max(version_count).
+- 4–6 sentences explaining: how you limited the input to the seven folders and why; how you made the winner deterministic; why your approach returns one row per key; and how updated_at_utc would display if the session time zone were Asia/Kolkata.
+- Spark UI review comes after I evaluate your implementation.

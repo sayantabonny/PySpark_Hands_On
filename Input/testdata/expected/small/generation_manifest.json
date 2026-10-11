@@ -1,0 +1,315 @@
+{
+  "generator_version": "2.0.0",
+  "profile": "small",
+  "seed": 20260915,
+  "anchor_date": "2026-09-15",
+  "config_fingerprint": "e5a79d95e57ed5cca237a8ac64a14846838dbc2057df4677d6742a24f9a59aad",
+  "python": "3.13",
+  "batches_written": [
+    "B001",
+    "B002",
+    "B003",
+    "B004",
+    "B005",
+    "B006"
+  ],
+  "sources": [
+    "crm",
+    "callcenter",
+    "helpdesk",
+    "crm_cdc",
+    "products",
+    "agents",
+    "billing"
+  ],
+  "config": {
+    "profile": {
+      "name": "small",
+      "days": 14,
+      "helpdesk_tickets_per_day": 650,
+      "callcenter_calls_per_day": 800,
+      "customers": 5000,
+      "max_records_per_file": 2000,
+      "record_labels": true,
+      "track_keys": true
+    },
+    "seed": 20260915,
+    "anchor_date": "2026-09-15",
+    "mix": {
+      "valid": 86.0,
+      "mild": 7.0,
+      "nullify": 2.0,
+      "dq_error": 2.5,
+      "malformed": 0.5,
+      "exact_duplicate": 2.0
+    },
+    "skew": {
+      "placeholder_customer_share": 0.06,
+      "null_customer_share": 0.01,
+      "hot_customers": 10,
+      "hot_customer_share": 0.15,
+      "customer_zipf_s": 0.8,
+      "hot_product_share": 0.25,
+      "product_zipf_s": 1.0,
+      "unknown_product_share": 0.003,
+      "incident_multiplier": 8.0,
+      "mega_ticket_versions": 300
+    },
+    "text": {
+      "templated_share": 0.15,
+      "long_text_share": 0.002,
+      "very_long_text_share": 0.0002,
+      "empty_description_share": 0.005,
+      "html_share": 0.01,
+      "llm_problem_share": 0.015,
+      "agent_category_noise": 0.3
+    },
+    "nested": {
+      "max_comments": 20,
+      "attachment_share": 0.35,
+      "internal_note_share": 0.3,
+      "custom_fields_max": 4,
+      "duplicate_comment_share": 0.01,
+      "unordered_comments_share": 0.02,
+      "size_as_text_share": 0.005,
+      "dirty_tags_share": 0.02,
+      "null_arrays_share": 0.01,
+      "custom_field_drift_share": 0.01,
+      "null_author_share": 0.005,
+      "ivr_bad_json_share": 0.005
+    },
+    "contract": {
+      "max_malformed_ratio": 0.05,
+      "snapshot_min_ratio_of_active": 0.9,
+      "future_tolerance_hours": 24,
+      "max_description_chars": 20000,
+      "batch_fail_pct": [
+        [
+          "R-TKT-001",
+          5.0
+        ],
+        [
+          "R-TKT-002",
+          20.0
+        ],
+        [
+          "R-TKT-003",
+          20.0
+        ],
+        [
+          "R-TKT-004",
+          20.0
+        ],
+        [
+          "R-TKT-005",
+          20.0
+        ],
+        [
+          "R-TKT-006",
+          20.0
+        ],
+        [
+          "R-TKT-007",
+          10.0
+        ],
+        [
+          "R-CUS-001",
+          5.0
+        ],
+        [
+          "R-CUS-002",
+          5.0
+        ]
+      ]
+    },
+    "scenarios": {
+      "s21_malformed_ratio": 0.02,
+      "s21_every_nth_file": 25,
+      "s22_malformed_ratio": 0.12,
+      "s23_count_delta": 7,
+      "scenario_file_share": 0.1,
+      "scenario_file_min_records": 40,
+      "late_versions_share": 0.01,
+      "conflict_pairs_share": 0.003,
+      "correction_share": 0.03,
+      "s27_csat_text_share": 1.0,
+      "backlog_days": 20,
+      "backlog_share": 0.25,
+      "crm_partial_ratio": 0.6,
+      "crm_duplicate_share": 0.0003,
+      "crm_bad_tier_share": 0.0005,
+      "crm_bad_signup_share": 0.0005,
+      "crm_bad_id_share": 0.0001,
+      "crm_blank_id_share": 0.0001,
+      "golden_set_size": 200
+    },
+    "warehouse": {
+      "cdc_profile_share": 0.2,
+      "cdc_update_share": 0.03,
+      "cdc_delete_share": 0.002,
+      "cdc_reinsert_share": 0.4,
+      "cdc_orphan_creates_per_day": 1,
+      "cdc_late_event_share": 0.02,
+      "cdc_duplicate_event_share": 0.01,
+      "cdc_noop_updates_per_day": 2,
+      "cdc_same_ts_pairs_per_day": 1,
+      "cdc_backdated_per_day": 1,
+      "agent_transfer_share": 0.06,
+      "agent_double_transfer_share": 0.01,
+      "agent_overlap_share": 0.0075,
+      "agent_gap_share": 0.0075,
+      "agent_two_open_share": 0.005,
+      "agent_leaver_share": 0.01,
+      "agent_rehire_share": 0.005,
+      "billing_second_account_share": 0.2,
+      "billing_third_account_share": 0.05,
+      "billing_no_account_share": 0.3,
+      "billing_orphan_share": 0.005,
+      "billing_blank_customer_share": 0.002,
+      "billing_key_format_share": 0.01,
+      "billing_moved_share": 0.005,
+      "billing_duplicate_row_share": 0.003,
+      "billing_shared_account_share": 0.002,
+      "early_fact_share": 0.01
+    }
+  },
+  "standardisation_contract": [
+    "Strings: trim; empty or whitespace-only -> NULL.",
+    "Enums: lower(trim(value)) looked up in the source value map; unmapped values pass through upper-cased and are caught by ALLOWED_VALUES.",
+    "Helpdesk timestamps: yyyy-MM-dd'T'HH:mm:ss[.SSS]XXX | yyyy-MM-dd HH:mm:ss (UTC) | epoch milliseconds.",
+    "Call-centre timestamps: dd/MM/yyyy HH:mm in Asia/Kolkata; updated_at = coalesce(CALL_END, CALL_START); resolved_at = CALL_END when DISPOSITION maps to RESOLVED.",
+    "Numbers: try_cast; a non-blank value that cannot be cast becomes NULL and is counted as SYS-CAST.",
+    "CSV: header names are normalised (BOM stripped, trimmed, case-insensitive) and matched by name, never by position; an extra '_overflow' column in the read schema flags rows with too many fields.",
+    "MERGE: newest by (updated_at, _delivery_ts, _record_hash); a later delivery with an identical _record_hash is a no-op.",
+    "DQ rules as PDF 1 Section 17.7 plus R-TKT-017 NOT_NULL priority (ERROR), R-TKT-018 NOT_NULL status (ERROR).",
+    "Encoding: every landing file is plain ASCII (UTF-8 compatible, English only); the one drifted call-centre file (S27) starts with a UTF-8 byte-order mark.",
+    "Complex types (S34): helpdesk comments ARRAY<STRUCT<..., author STRUCT, attachments ARRAY<STRUCT>>>, sla STRUCT<policy, targets ARRAY<STRUCT>, pause_windows ARRAY<ARRAY<STRING>>>, custom_fields MAP<STRING,STRING> (variable keys), tags ARRAY<STRING>; call-centre IVR_JSON is JSON text in a CSV column.",
+    "CDC (crm/customer_changes): apply events by source_seq after de-duplicating event_id; op r/c = insert, u = update (empty changed_fields = no-op), d = hard delete; commit_ts is system time, effective_from is business time. Answer keys: warehouse/cdc_customer_profile_final.csv and _scd2.csv.",
+    "Reference: product catalog snapshots (product -> family -> business unit); agent roster full-history extracts with inclusive effective_from/effective_to dates (empty effective_to = open).",
+    "Billing account map: billing_account_id -> customer_id with inclusive valid_from/valid_to (empty = open).",
+    "customer_ingestion for a batch completes before ticket_ingestion (R-TKT-015 REFERENCE depends on it)."
+  ],
+  "batches": [
+    {
+      "batch": "B001",
+      "purpose": "Backfill: initial load at volume",
+      "recommended_as_of": "2026-09-12T23:00:00+00:00",
+      "files": {
+        "total": 90,
+        "by_status": {
+          "LOADED": 90
+        },
+        "rejected": {},
+        "by_source": {
+          "crm": 1,
+          "callcenter": 10,
+          "helpdesk": 65,
+          "crm_cdc": 11,
+          "products": 1,
+          "agents": 1,
+          "billing": 1
+        }
+      }
+    },
+    {
+      "batch": "B002",
+      "purpose": "Normal day",
+      "recommended_as_of": "2026-09-13T23:00:00+00:00",
+      "files": {
+        "total": 10,
+        "by_status": {
+          "LOADED": 10
+        },
+        "rejected": {},
+        "by_source": {
+          "crm": 1,
+          "callcenter": 1,
+          "helpdesk": 6,
+          "products": 1,
+          "crm_cdc": 1
+        }
+      }
+    },
+    {
+      "batch": "B003",
+      "purpose": "Drift tolerance, ordering and duplicates",
+      "recommended_as_of": "2026-09-14T23:00:00+00:00",
+      "files": {
+        "total": 15,
+        "by_status": {
+          "LOADED": 14,
+          "DUPLICATE": 1
+        },
+        "rejected": {},
+        "by_source": {
+          "crm": 1,
+          "callcenter": 2,
+          "helpdesk": 11,
+          "crm_cdc": 1
+        }
+      }
+    },
+    {
+      "batch": "B004",
+      "purpose": "Incident day and rejections",
+      "recommended_as_of": "2026-09-15T23:00:00+00:00",
+      "files": {
+        "total": 20,
+        "by_status": {
+          "REJECTED": 6,
+          "LOADED": 14
+        },
+        "rejected": {
+          "crm/customers/arrival_date=2026-09-15/crm_customers_20260914_20260915T020000Z.csv": "PARTIAL_SNAPSHOT",
+          "helpdesk/tickets/arrival_date=2026-09-15/helpdesk_tickets_20260915T040000Z_0002.jsonl": "MALFORMED_RATIO",
+          "helpdesk/tickets/arrival_date=2026-09-15/helpdesk_tickets_20260915T080000Z_0003.jsonl": "CONTROL_MISMATCH",
+          "helpdesk/tickets/arrival_date=2026-09-15/helpdesk_tickets_20260915T120000Z_0003.jsonl": "CONTROL_FILE_MISSING",
+          "helpdesk/tickets/arrival_date=2026-09-15/helpdesk_tickets_20260915T160000Z_0003.jsonl": "MISSING_REQUIRED_FIELD:priority",
+          "helpdesk/tickets/arrival_date=2026-09-15/helpdesk_tickets_20260915T200000Z_0002.jsonl": "MISSING_REQUIRED_FIELD:created_at"
+        },
+        "by_source": {
+          "crm": 1,
+          "callcenter": 2,
+          "helpdesk": 14,
+          "products": 1,
+          "crm_cdc": 1,
+          "billing": 1
+        }
+      }
+    },
+    {
+      "batch": "B005",
+      "purpose": "Recovery: corrected re-deliveries",
+      "recommended_as_of": "2026-09-16T08:00:00+00:00",
+      "files": {
+        "total": 7,
+        "by_status": {
+          "LOADED": 7
+        },
+        "rejected": {},
+        "by_source": {
+          "crm": 1,
+          "helpdesk": 4,
+          "crm_cdc": 1,
+          "agents": 1
+        }
+      }
+    },
+    {
+      "batch": "B006",
+      "purpose": "Replay: idempotency",
+      "recommended_as_of": "2026-09-17T08:00:00+00:00",
+      "files": {
+        "total": 2,
+        "by_status": {
+          "DUPLICATE": 2
+        },
+        "rejected": {},
+        "by_source": {
+          "helpdesk": 1,
+          "crm_cdc": 1
+        }
+      }
+    }
+  ]
+}

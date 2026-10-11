@@ -1,0 +1,374 @@
+Core Objective:
+
+a. Conditional Data Manipulation
+b. Addition of new fields like a primary key, filename metadata, insertion date time, surrogate key
+c. Date and TimeStamp Manipulation 
+d. Deduplication, Sorting & Selective Dropping
+e. Accumulator(Counters, Sums, Debugging metrics) & Broadcast Variable
+f. Advanced Window Functions
+g. Window Functions with Aggregation
+h. Working with foreachPartition, mapPartitions, LocalIterator
+i. Working with transform, map, array, create_map, to_json
+j. Operations on Complex Data Types (Arrays/Structs)
+k. EDA & Statistical Profiling
+l. Dirty Data Handling
+m. Duplicate Detection & Deduplication 
+n. Cardinality & Categorical Profiling
+o. Correlation & Relationship Analysis 
+p. Partitioning Strategy
+q. Join Optimization Strategies
+r. Joins with and without simple Salting Technique
+s. Skew Handling Strategies
+t. Pivot Tables (Cross-Tabulation)
+u. Year-Over-Year (YoY) Analysis and Month-Over-Month (MoM) Analysis
+v. Gap/Anti-Join Analysis
+
+
+Operations:
+
+1. DataFrame Manipulation - Importance: Low
+   - select()
+   - selectExpr()
+   - withColumn()
+   - withColumns()
+   - withColumnRenamed()
+   - drop()
+   - alias()
+   - filter()
+   - where()
+   - distinct()
+   - dropDuplicates()
+
+2. Joins - Importance: High
+   - Inner Join
+   - Left Join
+   - Right Join
+   - Full Outer Join
+   - Left Semi Join
+   - Left Anti Join
+   - Cross Join
+   - Multi-column Joins
+   - Join with Expressions
+   - Null Handling in Joins
+   - Duplicate Join Keys / Join Cardinality
+   - Broadcast Join
+   - Join Hints
+   - Skewed Join Concepts
+
+3. Aggregations & Grouping - Importance: Medium
+   - groupBy()
+   - agg()
+   - sum()
+   - count()
+   - countDistinct()
+   - avg()
+   - min()
+   - max()
+   - collect_list()
+   - collect_set()
+   - Conditional Aggregation
+   - Multiple Aggregations
+   - Aggregation + Join
+   - Aggregation + Window
+
+4. Window Functions - Importance: Very High
+   - Window.partitionBy()
+   - Window.orderBy()
+   - rowsBetween()
+   - rangeBetween()
+   - lag()
+   - lead()
+   - first()
+   - last()
+   - Running Aggregations
+   - Cumulative Calculations
+   - Rolling Calculations
+   - Previous/Next Record Comparisons
+   - Window + Conditional Logic
+   - Multiple Window Specifications
+   - Row Frame vs Range Frame
+   - Sessionization
+   - Gap Detection
+   - Event Sequence Analysis
+   - Deduplication using Windows
+   - Latest Record Selection
+
+5. Deduplication - Importance: Medium
+   - distinct()
+   - dropDuplicates()
+   - Deduplication using Window Functions
+   - Latest Record per Key
+   - Earliest Record per Key
+   - Deduplication using Timestamp
+   - Deduplication Before/After Join
+   - row_number() for Deduplication
+
+6. Conditional Logic - Importance: High
+   - when()
+   - otherwise()
+   - Nested when()
+   - Conditional Aggregation
+   - Conditional Logic with Windows
+   - Conditional Logic with Joins
+   - Conditional Logic with Date/Time
+   - Conditional Logic with Nulls
+   - coalesce()
+
+7. Null Handling - Importance: Medium
+   - isNull()
+   - isNotNull()
+   - isnan()
+   - coalesce()
+   - fillna()
+   - dropna()
+   - na.fill()
+   - na.drop()
+   - Nulls in Joins
+   - Nulls in Aggregations
+   - Nulls in Window Functions
+   - Null vs NaN
+
+8. Date & Time Manipulation - Importance: Medium
+   - current_date()
+   - current_timestamp()
+   - to_date()
+   - to_timestamp()
+   - date_format()
+   - year()
+   - month()
+   - day()
+   - dayofweek()
+   - dayofmonth()
+   - weekofyear()
+   - hour()
+   - minute()
+   - second()
+   - datediff()
+   - months_between()
+   - add_months()
+   - date_add()
+   - date_sub()
+   - unix_timestamp()
+   - from_unixtime()
+   - Epoch to Timestamp
+   - Timestamp to Epoch
+   - Timestamp Arithmetic
+   - Timezone Concepts
+
+9. String Operations - Importance: low
+   - lower()
+   - upper()
+   - trim()
+   - ltrim()
+   - rtrim()
+   - length()
+   - substring()
+   - regexp_replace()
+   - regexp_extract()
+   - split()
+   - concat()
+   - concat_ws()
+   - replace()
+   - like
+   - contains()
+   - startswith()
+   - endswith()
+   - String Cleaning
+   - String Parsing
+
+10. Array / Struct / Nested Data - Importance: Medium
+    - explode()
+    - posexplode()
+    - Array Columns
+    - Struct Columns
+    - Nested Column Access
+    - Arrays of Structs
+    - Structs Containing Arrays
+    - array_contains()
+    - size()
+    - element_at()
+    - slice()
+    - flatten()
+    - collect_list()
+    - collect_set()
+    - Nested JSON Processing
+    - Row Cardinality after explode()
+
+11. Pivot / Unpivot - Importance: High
+    - pivot()
+    - Pivot with Aggregation
+    - Controlled Pivot Values
+    - Dynamic Pivot Concepts
+    - Unpivot using stack()
+    - Wide to Long
+    - Long to Wide
+
+12. Partition-Aware Operations - Importance: High
+    - repartition()
+    - coalesce()
+    - repartitionByRange()
+    - partitionBy()
+    - Broadcast()
+    - Broadcast Join
+    - Shuffle Awareness
+    - Partition Count Reasoning
+    - Data Distribution Concepts
+
+13. UDF & Function Selection - Importance: Medium
+    - Built-in Spark Functions
+    - Python UDF
+    - Pandas UDF
+    - Built-in Function vs Python UDF
+    - Serialization Overhead
+    - Vectorization
+    - Catalyst Optimization Implications
+    - Replacing UDFs with Native Spark Functions
+
+14. Reading & Writing Data - Importance: Medium
+    - spark.read
+    - spark.read.format()
+    - DataFrameReader
+    - df.write
+    - DataFrameWriter
+    - CSV
+    - JSON
+    - Parquet
+    - Delta
+    - Explicit Schema
+    - inferSchema
+    - header
+    - delimiter
+    - quote
+    - escape
+    - multiline
+    - compression
+    - append
+    - overwrite
+    - ignore
+    - error/errorifexists
+
+15. Schema Operations - Importance: Medium
+    - StructType
+    - StructField
+    - Spark Data Types
+    - Explicit Schema
+    - schema
+    - printSchema()
+    - cast()
+    - Data Type Conversion
+    - Nested Schemas
+    - Schema Validation
+    - Schema Evolution Concepts
+
+16. Spark SQL & Expression Operations - Importance: Low
+    - expr()
+    - selectExpr()
+    - spark.sql()
+    - Temporary Views
+    - SQL Expressions
+    - DataFrame API + SQL Interoperability
+    - SQL Functions inside DataFrame Operations
+
+17. Set & Union Operations - Importance: Medium
+    - union()
+    - unionByName()
+    - intersect()
+    - except()
+    - Column Ordering
+    - Schema Compatibility
+    - allowMissingColumns
+
+18. Sorting & Top-N Operations - Importance: Low
+    - orderBy()
+    - sort()
+    - asc()
+    - desc()
+    - limit()
+    - Global Top-N
+    - Top-N per Group
+    - Top-N using Window Functions
+
+19. Ad-hoc / Advanced Spark Operations - Importance: High
+
+   - Broadcast Variables
+   - Broadcast Joins
+   - Accumulators
+   - toLocalIterator()
+   - collect()
+   - take()
+   - head()
+   - first()
+   - foreach()
+   - foreachPartition()
+   - mapPartitions()
+   - map()
+   - flatMap()
+   - Driver vs Executor Execution
+   - Serialization Considerations
+   - Avoiding Driver Memory Issues
+   - Understanding When Data Moves to the Driver
+
+20. Data Modeling, CDC & Data Warehouse Patterns - Importance: Very High
+   - SCD Type 1
+   - SCD Type 2
+   - SCD Type 3
+   - SCD Type 4
+   - CDC Processing
+   - Upsert Patterns
+   - Soft Delete Handling
+   - Late Arriving Data
+   - Surrogate Key Generation
+   - Fact-Dimension Modeling
+   - Star Schema
+   - Snowflake Schema
+   - Data Vault Basics
+   - Incremental Loading Strategies
+   - Watermark-Based Processing
+   - Idempotent Processing
+
+21. Delta Lake Optimization & Maintenance - Importance: High
+   - OPTIMIZE
+   - Small File Problem
+   - Auto Compaction
+   - Optimized Writes
+   - ZORDER
+   - Data Skipping
+   - Partition Pruning
+   - Statistics Collection
+   - ANALYZE TABLE
+   - VACUUM
+   - Retention Policies
+   - Time Travel Impact
+   - File Layout Optimization
+
+22. Delta Lake Transaction Management - Importance: High
+   - Delta Table Creation
+   - Delta Table APIs
+   - Update
+   - Delete
+   - Merge Into
+   - Transaction Log
+   - ACID Transactions
+   - Optimistic Concurrency Control
+   - Schema Enforcement
+   - Schema Evolution
+   - Generated Columns
+   - Constraints
+   - Identity Columns
+   - Delta Cloning
+
+23. Data Reconciliation & Data Quality - Importance: High
+   - Record Count Validation
+   - Column Count Validation
+   - Source Target Reconciliation
+   - Hash-Based Validation
+   - Checksum Validation
+   - Column Level  Custom Data Validation from JSON or table
+   - Duplicate Detection
+   - Null Analysis
+   - Threshold-Based Validation
+   - Exception Reporting
+   - Audit Framework Design
+   - Data Profiling
+   - Referential Integrity Validation
+   - Exploratory Data Analysis

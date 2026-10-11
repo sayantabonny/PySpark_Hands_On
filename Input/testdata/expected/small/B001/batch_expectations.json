@@ -1,0 +1,107 @@
+{
+  "batch": "B001",
+  "purpose": "Backfill: initial load at volume",
+  "recommended_as_of": "2026-09-12T23:00:00+00:00",
+  "files": {
+    "total": 90,
+    "by_status": {
+      "LOADED": 90
+    },
+    "rejected": {},
+    "by_source": {
+      "crm": 1,
+      "callcenter": 10,
+      "helpdesk": 65,
+      "crm_cdc": 11,
+      "products": 1,
+      "agents": 1,
+      "billing": 1
+    }
+  },
+  "rows": {
+    "delivered": 42263,
+    "in_loaded_files": 42263,
+    "parse_quarantine": 143,
+    "dq_quarantine": 742,
+    "nullified": 617,
+    "stale_ignored": 0,
+    "duplicate_noop": 581
+  },
+  "rule_hits": {
+    "R-CUS-002": 1,
+    "R-CUS-003": 3,
+    "R-CUS-004": 6,
+    "R-TKT-001": 192,
+    "R-TKT-002": 95,
+    "R-TKT-003": 59,
+    "R-TKT-004": 83,
+    "R-TKT-005": 78,
+    "R-TKT-006": 62,
+    "R-TKT-007": 160,
+    "R-TKT-008": 170,
+    "R-TKT-009": 183,
+    "R-TKT-010": 62,
+    "R-TKT-011": 158,
+    "R-TKT-012": 679,
+    "R-TKT-013": 59,
+    "R-TKT-015": 1230,
+    "R-TKT-016": 70,
+    "R-TKT-017": 12,
+    "R-TKT-018": 12,
+    "SYS-CAST": 35,
+    "SYS-DUP-CONFLICT": 1,
+    "SYS-PARSE": 143
+  },
+  "rule_violation_pct": {
+    "R-CUS-002": 0.02,
+    "R-CUS-003": 0.06,
+    "R-CUS-004": 0.12,
+    "R-TKT-001": 0.623,
+    "R-TKT-002": 0.308,
+    "R-TKT-003": 0.191,
+    "R-TKT-004": 0.269,
+    "R-TKT-005": 0.253,
+    "R-TKT-006": 0.201,
+    "R-TKT-007": 0.519,
+    "R-TKT-008": 0.552,
+    "R-TKT-009": 0.594,
+    "R-TKT-010": 0.201,
+    "R-TKT-011": 0.513,
+    "R-TKT-012": 2.204,
+    "R-TKT-013": 0.191,
+    "R-TKT-015": 3.992,
+    "R-TKT-016": 0.227,
+    "R-TKT-017": 0.039,
+    "R-TKT-018": 0.039,
+    "SYS-CAST": 0.114,
+    "SYS-DUP-CONFLICT": 0.003,
+    "SYS-PARSE": 0.464
+  },
+  "threshold_breaches": [],
+  "expected_events": [
+    "S21: files LOADED with a few PARSE quarantines"
+  ],
+  "silver_ticket": {
+    "inserted": 14626,
+    "updated": 0,
+    "keys_after": 14626,
+    "helpdesk_keys": 7019,
+    "callcenter_keys": 7607,
+    "enrichment_after_drain": {
+      "PERMANENT_FAILURE:CONTENT_FILTERED": 10,
+      "PERMANENT_FAILURE:INVALID_JSON": 6,
+      "PERMANENT_FAILURE:OUTPUT_TRUNCATED": 6,
+      "PERMANENT_FAILURE:RATE_LIMITED": 3,
+      "PERMANENT_FAILURE:SCHEMA_VIOLATION": 8,
+      "SKIPPED": 450,
+      "SUCCESS": 14128,
+      "SUCCESS_AFTER_RETRY": 15
+    }
+  },
+  "silver_customer": {
+    "snapshot_date": "2026-09-11",
+    "file_status": "LOADED",
+    "rows_after": 4999,
+    "active_after": 4945
+  }
+}
