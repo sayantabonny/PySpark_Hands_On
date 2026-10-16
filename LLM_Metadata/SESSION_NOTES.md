@@ -31,11 +31,18 @@ Follow [`HANDS_ON_INTERVIEW_GUIDE.md`](HANDS_ON_INTERVIEW_GUIDE.md). Candidate p
   - the expected submission
 
   Save prompts as `Questions\Q<n>.txt`.
+- Schema files (created 2026-10-11 at the user's request): `Input\README.md` is the index, with one `Input\<source>.md` per source (helpdesk_tickets, callcenter_calls, crm_customers, crm_customer_changes, product_catalog, agent_roster, billing_account_map) and `Input\intermediate\<output>.md` per reusable exercise output (so far FP-001_queue_action). They describe the contract only, never planted cases. After each evaluated exercise whose output can feed later questions, add its intermediate md and index row. FP-002's current-state and rejects tables are due after its evaluation.
 - Keep prompts free of planted edge cases, scenario IDs, hints and solution recipes. Never require parsing arbitrary filename tokens or remembering arbitrary constants. Do assess `_source_file`, `_record_no`, `_file_id`, recursive discovery, explicit schemas and corrupt-record handling when they are selected topics.
 
 **Interaction:**
 
-1. **Part 1.** The candidate implements and explains. The interviewer evaluates against an independent answer key.
+1. **Part 1 (protocol revised 2026-10-16 at the user's request).**
+   - The candidate submits **code only**: notebook plus counts, with no written design explanation.
+   - **Single round:** wrong or incomplete code is not returned for rework.
+   - The interviewer validates by running the outputs and the corrected code with local Spark against the answer key.
+   - The interviewer annotates the candidate's notebook in place: `❌ M<k>` mistake cells after the faulty cells, a review summary table, `✅ Corrected solution (validated)` code cells that run in a fresh kernel, and a design-questions cell that the interviewer asks and answers.
+   - **Carry-forward:** design questions from exercise *n* become coding requirements in exercise *n+1*.
+   - Corrected reusable outputs are rewritten as a new Delta version, and their `Input\intermediate\*.md` is updated.
 2. **Part 2.** A targeted Spark UI drill, only after evaluation:
    - Ask for one specific UI location: the tab, how to find the row or query, and the element or metric.
    - Ask for a prediction first, then two to four precise report-back questions.
@@ -46,9 +53,9 @@ Follow [`HANDS_ON_INTERVIEW_GUIDE.md`](HANDS_ON_INTERVIEW_GUIDE.md). Candidate p
 **Tracking:**
 
 - `TOPIC_COVERAGE.csv`: one row per atomic topic, with `Importance`, `Target_Passes` and `Pass_1`…`Pass_5_Evidence`.
-  - Primary and supporting topics pass with a correct implementation, an explanation and met acceptance criteria.
-  - Low-tier secondary topics pass with correct use plus a one-sentence justification.
-  - A mention or the interviewer's explanation alone is never a pass. Vary the context across passes.
+  - A topic passes when the candidate's **own** code implements it correctly and the dependent acceptance criteria are met. No explanation is needed.
+  - Topics fixed only by the interviewer do not pass. They are listed as "corrected by interviewer" and come back in later exercises.
+  - Never a pass: a mention, an unattempted prompt, or the interviewer's own code or explanation. Vary the context across passes.
 - `SPARK_UI_COVERAGE.csv`: `Depth_Reached` 0–3 with evidence per level. Interviewer-only teaching goes in `Taught_In`.
 - When the user edits importance tags in `Primary_Topics.txt`, re-sync `Importance` and `Target_Passes`. Last synced 2026-10-11: Joins and Conditional Logic are now High; Window Functions and Data Modeling/CDC are Very High.
 
@@ -106,7 +113,7 @@ spark = (SparkSession.builder
 - No Hive support, so the catalog is in memory: table names disappear on restart, but paths persist.
 - Spark UI at `http://localhost:4040`. Teach from actual run evidence; never assert fixed job, stage or task counts.
 
-## Current position — FP-002 issued, awaiting attempt (data regenerated 2026-10-11)
+## Current position — FP-002 closed 2026-10-16 (single-round review); Spark UI drill issued; FP-003 next
 
 - **FP-001** closed 2026-10-07 with 26 first passes (CO-a; OP-01.01/.03/.06; OP-03.01/.02/.04; OP-06.01/.02; OP-09.02/.03/.18; OP-14.01/.02/.04/.07/.09/.10/.19; OP-15.01–.05/.09; OP-23.01).
   - Not passed: OP-06.08, OP-22.01, CO-l.
@@ -115,7 +122,11 @@ spark = (SparkSession.builder
   - Prompt: `D:\Project_AI\PySpark_Hands_On\Questions\Q2.txt`. The window is `arrival_date=2026-09-02` … `2026-09-08` and the prompt is unchanged by the regeneration.
   - Targets: CO-f/CO-d/CO-m, OP-04 latest record and dedup, OP-05 latest per key and row_number, CO-b `_source_file`, CO-c/OP-08 multi-format timestamps and time zone, CO-l dirty data, OP-03.14 aggregation + window, OP-23 reconciliation.
   - Low secondaries present: trim/string cleaning, select/withColumn.
-- **Spark UI drill planned for FP-002 (after evaluation).** Focus: UI-OP-04 Understanding Stages plus UI-CO-f Exchange, at L1→L2.
+- **FP-002 closed** 2026-10-16. The second submission was reviewed under the new single-round protocol, the notebook was annotated (M1–M6, validated FIX-1..5, design Q1–Q5), and the corrected tables were written as Delta v3. There are 25 new passes (see the round log), giving 45 topics with ≥1 pass.
+  - Corrected by interviewer, so not passed; revisit: CO-c / OP-08 multi-format timestamp parsing and time zones (OP-08.04 to_timestamp, OP-08.25 timezone concepts, epoch to timestamp), deterministic total ordering, OP-23.01 record-count reconciliation (not shown), and the `_corrupt_record` cache vs staging pattern.
+  - **Carry-forward into FP-003 as coding requirements:** (1) prove the result is deterministic, by rerunning or comparing two runs/versions with `exceptAll` or hashes, and (2) render `updated_at_utc` explicitly in UTC and in Asia/Kolkata in the output or the report.
+  - The candidate's `Input\staging\tickets_temp` (2.3 MB) still exists; the user was asked to delete it.
+- **Spark UI drill issued for FP-002 (2026-10-16).** Focus: UI-OP-04 Understanding Stages plus UI-CO-f Exchange, at L1→L2.
   - Prediction: does the window add a shuffle, and where is the stage boundary?
   - Location: SQL / DataFrame tab → the query of the Delta write → the Window node and the Exchange beneath it.
   - Report back: the Exchange partitioning expression; the number of tasks in the stage that contains Window; that stage's Shuffle Read size; whether AQEShuffleRead coalesced the partitions.
@@ -145,9 +156,51 @@ Recompute this after the user regenerates, if their log differs.
 ### Other notes
 
 - The user showed that DBeaver/DuckDB `delta_scan` works with explicit columns, while `SELECT *` fails on raw corrupt payloads. Use the guide's `_corrupt_record` notes if relevant.
-- Coverage: 26 of 322 topics have pass 1; no Spark UI section has demonstrated depth yet.
+- Coverage: 45 of 322 topics have ≥1 pass (FP-001: 26, FP-002: 25 incl. second passes); no Spark UI section has demonstrated depth yet.
 
 ## Round log
+
+### FP-002 — final review (second submission, 2026-10-16, single-round protocol)
+
+- **What the candidate fixed themselves:** blank keys rejected (81 ✓); full source path via `input_file_name()`; version count via max(row_number) over a partition-only window (sum 12,819 / max 42 ✓). Rejects 67/81/37, valid 12,819 and 4,386 rows all match.
+- **Remaining mistakes, annotated in `Response_2.ipynb`:**
+  - M1: staging copy in `Input\staging`.
+  - M2: rejects `ticket_id` trimmed (29 `'   '` stored as `''`).
+  - M3: INVALID_UPDATED_AT checked before parsing.
+  - M4: `yyyy-MM-dd HH:mm:ss` parsed in the session zone, so 36 output instants are 5h30m early and 10 winners are wrong (e.g. HD-10000940). Also `to_utc_timestamp(x,'UTC')` is a no-op, and epoch ms are truncated (33 winners).
+  - M5: `max` relied on stale kernel state; no final tie-break.
+  - M6: column `versions_count`, column order, no counts or assertions.
+- **Validation:** local Spark 4.0.1 against the answer key. Candidate output: 10 wrong winners and 69 wrong UTC instants. The corrected cells give 0 / 0 / 0. The corrected tables were written to `Output\focused\FP-002_ticket_current` / `_rejects` as Delta v3 (v0–v2 are the candidate's), and `Input\intermediate\FP-002_*.md` was added.
+- **Passes recorded (25):** CO-b, CO-d, CO-g, CO-l, CO-m; OP-01.01/.03/.05/.06/.08; OP-03.14; OP-04.01/.02/.19/.20; OP-05.03/.04/.06/.08; OP-06.08; OP-07.01/.02; OP-09.03; OP-14.07/.10.
+- **Scripts:** in the session scratchpad (`fp002_validate.py`, `fp002_fixed_cells.py`, `fp002_apply.py`, `annotate_fp002.py`). The notebook backup before the review is `Response_2.before_review.ipynb` there.
+
+### FP-002 — current helpdesk ticket state (first attempt, evaluated 2026-10-16)
+
+Notebook: `User_Responses\Response_2.ipynb`. Outputs: `Output\focused\FP-002_ticket_current` and `FP-002_ticket_rejects` (Delta v0, external tables).
+
+**What the candidate did:**
+- Full explicit schema with `_corrupt_record`. `comments` was read as ARRAY<STRING> and `sla`/`custom_fields` as STRING, which works because the JSON text is kept raw.
+- Input selected with `basePath` + glob `arrival_date=2026-09-0[2-8]/*.jsonl`. This keeps the seven folders, excludes `.ctl.json` and keeps the `arrival_date` partition column. Correct.
+- `_source_file` = `_metadata.file_name`.
+- Staged the whole parse to Parquet under `Input\staging\tickets_temp` (2.3 MB), probably to avoid Spark's corrupt-record-only query restriction.
+- Reject `when` chain; timestamps parsed with coalesce(try_cast ISO, try_to_timestamp `yyyy-MM-dd HH:mm:ss`, from_unixtime(epoch/1000)) and then `to_utc_timestamp(..., "UTC")`.
+- Window: row_number by (updated_at_utc desc, _source_file desc), and `versions_count` = max(row_number) over the same ordered window.
+- No counts and no explanation were submitted.
+
+**Measured against the answer key:**
+- Current table: 4,387 rows vs 4,386. The extra row is key `""`: 55 blank keys (26 `''` and 29 `'   '`) became `''` after trim, passed the `isNull` check, and collapsed into one current row.
+- Rejects: MALFORMED 67 ✓, INVALID_UPDATED_AT 37 ✓, MISSING_TICKET_ID 26 instead of 81.
+- `versions_count`: sum 4,429 (should be 12,819) and max 2 (should be 42). The ordered window's default RANGE frame (unbounded preceding to current row) gives max = 1, or 2 where same-instant peers exist. The column name also differs from the specified `version_count`.
+- 36 rows in the `yyyy-MM-dd HH:mm:ss` format were stored 5h30m early, because `try_cast` interpreted them in the session time zone (Asia/Kolkata), not UTC. `to_utc_timestamp(x, "UTC")` is a no-op. This changed the winner for 10 tickets, e.g. HD-10000940 (correct winner `2026-09-03 09:55:03` UTC; candidate kept `2026-09-03T06:34:12Z`).
+- Epoch-ms values: correct instant, but milliseconds dropped (from_unixtime truncates to seconds).
+- `_source_file` holds the file name, not the full path the prompt required. Ordering by name happens to work here.
+- No final deterministic tie-break, though same-file ties are content-identical.
+- Rejects `ticket_id` is trimmed rather than as received. The column order differs from the specified schema.
+- Hidden cases handled: ctl exclusion ✓, late/stale versions ✓ (ordering by instant), file tie-break ✓.
+
+**Pass decision:** none yet. The acceptance criteria failed (key rule, version_count, UTC for one format) and the explanation is missing. Requested: fix and resubmit with counts and the 4–6-sentence explanation; remove `Input\staging`.
+
+**Planned teaching after the fix:** corrupt-record-only query restriction (cache vs staging); window frame defaults (RANGE vs ROWS) and using `count` over a partition-only window; session time zone vs string casts; `to_utc_timestamp` semantics; deterministic tie-breaks. Spark UI drill as planned above, once the corrected run exists.
 
 ### FP-001 — classify helpdesk tickets for queue handling
 

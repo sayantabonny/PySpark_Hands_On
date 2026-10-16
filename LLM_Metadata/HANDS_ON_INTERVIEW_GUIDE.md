@@ -18,7 +18,8 @@ Root: `D:\Project_AI\PySpark_Hands_On`
 | Path | Content |
 |---|---|
 | `tools\datagen\` | Data generator (Python package `data_generator`, distribution `handson-datagen`) |
-| `Input\landing\{helpdesk,callcenter,crm}\` | Practice input data |
+| `Input\landing\{helpdesk,callcenter,crm,reference,billing}\` | Practice input data |
+| `Input\*.md`, `Input\intermediate\*.md` | Candidate-facing schema files: one per source (contract only, no planted edge cases) and one per reusable intermediate table; index in `Input\README.md` |
 | `Input\testdata\expected\small\` | Generator ground truth. Interviewer-only answer-checking material, never pipeline input |
 | `Output\` | Exercise outputs; use `Output\focused\<exercise>` |
 | `Questions\` | Issued prompts (`Q1.txt`, `Q2.txt`, ...) |
@@ -220,7 +221,7 @@ Cover several topics in one exercise whenever the business requirement makes it 
 
 Each exercise has two parts. Do not ask for Spark UI evidence before the implementation has been evaluated.
 
-### Part 1: Build and explain
+### Part 1: Build (code only)
 
 Every prompt states:
 - the exact environment
@@ -239,15 +240,27 @@ Keep prompts free of planted edge cases, scenario IDs, hints and solution recipe
 
 Assess interview-relevant skills such as `_source_file`, `_record_no`, `_file_id`, recursive file discovery, explicit schemas and corrupt-record handling. Never require parsing arbitrary filename tokens or remembering arbitrary constants. Supply derived metadata as an input instead.
 
-Ask for code (a notebook with saved outputs in `User_Responses\`), the required counts and a short design explanation. Never give a full solution before the attempt.
+Ask for code only: a notebook with saved outputs in `User_Responses\Response_<n>.ipynb`, plus the required counts. Do not ask the candidate for a written design explanation (see "Design questions" below). Never give a full solution before the attempt.
 
-### Evaluation and tracking
+**Carry-forward rule.** The design questions answered in the review of exercise *n* become **coding requirements** in exercise *n+1*. For example, "how is the winner deterministic?" becomes "prove determinism by rerunning and comparing the outputs". Fold them into the next prompt's business requirements and acceptance criteria. Never present them as quiz questions.
 
-- **Evaluate.** Check the submission against an independent answer key computed from `Input`, which covers the hidden edge cases. Explain what was correct, what was missed and why.
-- **Primary and supporting topics:** a pass needs a correct implementation, an adequate explanation and met acceptance criteria.
-- **Low-tier secondary topics:** a pass needs correct use in the solution plus a one-sentence justification when asked.
-- **What never counts as a pass:** a mention, an unattempted prompt or the interviewer's own explanation.
+### Evaluation, correction and tracking (single round; protocol revised 2026-10-16)
+
+- **One submission per exercise.** If the code is wrong or incomplete, do **not** return it for rework. The review closes the exercise.
+- **Validate by running.** Check the submission against an independent answer key computed from `Input`, which covers the hidden edge cases. Wherever possible, read the candidate's actual outputs with local Spark (`C:\Spark\spark-4.0.1-bin-hadoop3`, Delta jars in the Ivy cache) and run the corrected code in the scratchpad before presenting it.
+- **Annotate the candidate's notebook in place.** Leave the candidate's cells untouched.
+  - **Mistake notes.** After each faulty cell, insert a markdown cell tagged `interviewer-review`, headed `❌ M<k> (cell above): <title>`. State what is wrong, the measured impact (counts and an example key) and the correct approach.
+  - **Review summary.** Add one markdown cell with a table of expected vs candidate vs corrected results, and a list of what was done correctly.
+  - **Corrected solution.** Add a `✅ Corrected solution (validated)` section of code cells tagged `interviewer-fix`. They must run in a fresh kernel after the session cell, and must not depend on earlier kernel state. Follow them with the validated run output.
+  - **Design questions.** Add a markdown cell where the interviewer **asks and answers** the design questions for the exercise: why this approach, alternatives, determinism, time zones, performance and Spark internals. It ends with the carry-forward list for the next exercise.
+- **Correct the outputs.** When the corrected code changes an output that later exercises may reuse, write the corrected table to the same `Output\focused\` path as a new Delta version, so the candidate's versions stay available through time travel. Then update `Input\intermediate\<output>.md`.
+- **Passes** (no candidate explanation is required any more):
+  - A topic passes when the candidate's **own** code implements it correctly, and the part of the acceptance criteria that depends on it is met.
+  - Topics that were correct only after the interviewer's fix do not pass. List them in `SESSION_NOTES.md` as "corrected by interviewer" so they come back in later exercises.
+  - Low-tier topics pass on correct use.
+  - Never a pass: a mention, an unattempted prompt, or the interviewer's own code or explanation.
 - **Record keeping.** Record each pass in the next empty `Pass_n_Evidence` column of `TOPIC_COVERAGE.csv`, starting with the exercise ID. Then update `SESSION_NOTES.md`.
+- **Intermediate tables.** When an evaluated exercise writes an output that later exercises can reuse, add `Input\intermediate\<output>.md` and a row in `Input\README.md`. Include the location, format, table identifier, producing exercise, grain, row count, Delta versions, columns with types, and the rules that produced derived columns, all taken from the candidate's actual output. If a source schema changes, update its `Input\*.md`. A prompt may point to these files, but must still state the schema it needs.
 
 ### Part 2: Targeted Spark UI drill (after evaluation)
 
@@ -278,4 +291,4 @@ The candidate's Windows Spark setup: `local[6]` (the notebook used `local[4]`), 
 
 ## One-line resume prompt
 
-"Resume the PySpark hands-on practice using `D:\Project_AI\PySpark_Hands_On\LLM_Metadata\SESSION_NOTES.md`: give one concise, fully specified exercise at a time on Windows local Spark/Delta. Build each from Very High/High primary targets plus supporting Medium topics and at least two Low topics. Keep planted cases hidden and evaluate against an answer key. Then run one targeted Spark UI drill that deepens the least-covered `Spark_UI_Topics.txt` section, and track topic passes toward their importance-based targets."
+"Resume the PySpark hands-on practice using `D:\Project_AI\PySpark_Hands_On\LLM_Metadata\SESSION_NOTES.md`: give one concise, fully specified exercise at a time on Windows local Spark/Delta. Build each from Very High/High primary targets plus supporting Medium topics and at least two Low topics. Keep planted cases hidden and evaluate against an answer key. Ask for code only. Validate in one round by running it against an answer key, annotate mistakes and validated fixes in the candidate's notebook, answer the design questions myself and carry them into the next exercise as coding requirements. Then run one targeted Spark UI drill that deepens the least-covered `Spark_UI_Topics.txt` section, and track topic passes toward their importance-based targets."

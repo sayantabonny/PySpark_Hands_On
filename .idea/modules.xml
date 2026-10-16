@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/PySpark_Hands_On.iml" filepath="$PROJECT_DIR$/.idea/PySpark_Hands_On.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/handson-datagen.iml" filepath="$PROJECT_DIR$/.idea/handson-datagen.iml" />
+    </modules>
+  </component>
+</project>
