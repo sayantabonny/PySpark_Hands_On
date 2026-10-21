@@ -34,21 +34,22 @@ Follow [`HANDS_ON_INTERVIEW_GUIDE.md`](HANDS_ON_INTERVIEW_GUIDE.md). Candidate p
 - Schema files (created 2026-10-11 at the user's request): `Input\README.md` is the index, with one `Input\<source>.md` per source (helpdesk_tickets, callcenter_calls, crm_customers, crm_customer_changes, product_catalog, agent_roster, billing_account_map) and `Input\intermediate\<output>.md` per reusable exercise output (so far FP-001_queue_action). They describe the contract only, never planted cases. After each evaluated exercise whose output can feed later questions, add its intermediate md and index row. FP-002's current-state and rejects tables are due after its evaluation.
 - Keep prompts free of planted edge cases, scenario IDs, hints and solution recipes. Never require parsing arbitrary filename tokens or remembering arbitrary constants. Do assess `_source_file`, `_record_no`, `_file_id`, recursive discovery, explicit schemas and corrupt-record handling when they are selected topics.
 
-**Interaction:**
+**Interaction (protocol revised 2026-10-21 at the user's request; it extends the 2026-10-16 single-round review):**
 
-1. **Part 1 (protocol revised 2026-10-16 at the user's request).**
-   - The candidate submits **code only**: notebook plus counts, with no written design explanation.
-   - **Single round:** wrong or incomplete code is not returned for rework.
-   - The interviewer validates by running the outputs and the corrected code with local Spark against the answer key.
-   - The interviewer annotates the candidate's notebook in place: `❌ M<k>` mistake cells after the faulty cells, a review summary table, `✅ Corrected solution (validated)` code cells that run in a fresh kernel, and a design-questions cell that the interviewer asks and answers.
-   - **Carry-forward:** design questions from exercise *n* become coding requirements in exercise *n+1*.
-   - Corrected reusable outputs are rewritten as a new Delta version, and their `Input\intermediate\*.md` is updated.
-2. **Part 2.** A targeted Spark UI drill, only after evaluation:
-   - Ask for one specific UI location: the tab, how to find the row or query, and the element or metric.
-   - Ask for a prediction first, then two to four precise report-back questions.
-   - Teach from the reported evidence.
-   - Never ask for a complete walk-through.
-   - Choose the least-covered relevant section of `Spark_UI_Topics.txt`. Deepen it over time (L1 locate & read, L2 explain, L3 diagnose & tune) until every section is covered.
+1. **Interaction 1 (interviewer).** Prompt `Questions\Q<n>.txt` with four parts:
+   - **A:** the question (full spec as before), plus a brief function overview. Each function gets one line covering what it does and its key gotcha. Where there are several ways to reach a goal, list them with trade-offs and let the user choose. Never reveal the planted cases or the recipe.
+   - **B:** explicit Spark config for run 1 that triggers a performance or error scenario: AQE off, shuffle partitions, `local[1|2]`, lower driver or executor memory, broadcast threshold, caching. Mark each setting as runtime or startup (restart). Run 2 applies a fix.
+   - **C:** exact UI locations and metrics to report for run 1 and run 2, with a prediction first.
+   - **D:** the bottleneck or error explained, interviewer-measured numbers from a scratchpad run, and two to four fixes with trade-offs.
+   - Verify the scenario in the scratchpad before issuing the prompt.
+2. **Interaction 2 (user).** Code (notebook with outputs and counts) plus the Part C report for both runs.
+3. **Interaction 3 (interviewer).** Single-round review, as decided 2026-10-16:
+   - Wrong or incomplete code is not returned for rework.
+   - Validate by running the user's outputs and the corrected code with local Spark against the answer key.
+   - Annotate the notebook in place: `❌ M<k>` cells after faulty cells, a summary table, `✅ Corrected solution (validated)` cells that run in a fresh kernel, and token-by-token explanations of non-obvious constructs such as regexes or `expr` SQL.
+   - Add a design-questions cell that the interviewer asks and answers. **Carry-forward:** those questions become coding requirements in exercise *n+1*.
+   - Explain the Part C metrics.
+   - Rewrite corrected reusable outputs as a new Delta version and update `Input\intermediate\*.md`.
 
 **Tracking:**
 
@@ -113,7 +114,7 @@ spark = (SparkSession.builder
 - No Hive support, so the catalog is in memory: table names disappear on restart, but paths persist.
 - Spark UI at `http://localhost:4040`. Teach from actual run evidence; never assert fixed job, stage or task counts.
 
-## Current position — FP-002 closed 2026-10-16 (single-round review); Spark UI drill issued; FP-003 next
+## Current position — FP-003 issued 2026-10-21 (first exercise in the four-part A–D format); awaiting the user's code and Part C report
 
 - **FP-001** closed 2026-10-07 with 26 first passes (CO-a; OP-01.01/.03/.06; OP-03.01/.02/.04; OP-06.01/.02; OP-09.02/.03/.18; OP-14.01/.02/.04/.07/.09/.10/.19; OP-15.01–.05/.09; OP-23.01).
   - Not passed: OP-06.08, OP-22.01, CO-l.
@@ -126,11 +127,37 @@ spark = (SparkSession.builder
   - Corrected by interviewer, so not passed; revisit: CO-c / OP-08 multi-format timestamp parsing and time zones (OP-08.04 to_timestamp, OP-08.25 timezone concepts, epoch to timestamp), deterministic total ordering, OP-23.01 record-count reconciliation (not shown), and the `_corrupt_record` cache vs staging pattern.
   - **Carry-forward into FP-003 as coding requirements:** (1) prove the result is deterministic, by rerunning or comparing two runs/versions with `exceptAll` or hashes, and (2) render `updated_at_utc` explicitly in UTC and in Asia/Kolkata in the output or the report.
   - The candidate's `Input\staging\tickets_temp` (2.3 MB) still exists; the user was asked to delete it.
-- **Spark UI drill issued for FP-002 (2026-10-16).** Focus: UI-OP-04 Understanding Stages plus UI-CO-f Exchange, at L1→L2.
+- **FP-003 issued 2026-10-21:** customer-profile SCD2 from the CDC feed. Prompt `Questions\Q3.txt`, notebook `User_Responses\Response_3.ipynb`, output `Output\focused\FP-003_customer_profile_scd2` (table `FP_003_customer_profile_scd2`).
+  - Primary targets: Very High OP-20.02 SCD2, OP-20.05 CDC processing, OP-20.16 idempotent processing, OP-04.06 lead and OP-04.12 next-record comparison.
+  - Medium: OP-10 nested struct access, OP-17.04 except (exceptAll), OP-14.07 JSON, OP-07 nulls, OP-08.05 date_format and OP-08.25 time zones (carry-forward), OP-21.12 time travel.
+  - Low: OP-18 orderBy/desc/limit Top-N, plus select/alias/where as needed.
+  - Carry-forward from FP-002 built in: determinism proof (Delta v0 vs v1 exceptAll both ways) and UTC vs IST text columns.
+  - **Part B/C/D scenario:** AQE off with shuffle.partitions 200, giving 200 tiny tasks and up to 200 small files (UI-OP-06 partitions, UI-CO-o shuffle partition tuning, UI-CO-j AQE, UI-CO-f Exchange). Interviewer scratch run (local[4]): AQE off → 200 files, write about 11.4 s; AQE on → 1 file, about 3.9 s; AQE off + 4 partitions → 4 files, about 2.2 s. Run 2 uses the user's choice of fix.
+  - The function overview noted ANSI-mode `cast` errors in Spark 4: verified, `cast('yesterday' as bigint)` raises CAST_INVALID_INPUT.
+- **Superseded:** the FP-002 Spark UI drill (2026-10-16), replaced by the A–D format. Its focus (UI-OP-04 stages, UI-CO-f Exchange) is covered by FP-003 Part C.
   - Prediction: does the window add a shuffle, and where is the stage boundary?
   - Location: SQL / DataFrame tab → the query of the Delta write → the Window node and the Exchange beneath it.
   - Report back: the Exchange partitioning expression; the number of tasks in the stage that contains Window; that stage's Shuffle Read size; whether AQEShuffleRead coalesced the partitions.
   - Optional follow-up later: scan PartitionFilters / files read for the `arrival_date` selection (UI-CO-l / UI-OP-02).
+
+### Interviewer-only answer key for FP-003 (validated 2026-10-21 by a Spark reference run; 0 mismatches against `Input\testdata\expected\small\warehouse\cdc_customer_profile_scd2.csv`; do not reveal before submission)
+
+- **Input:** 16 files, 1,680 lines; 1 malformed (truncated) line; 1,614 distinct events; 65 duplicate deliveries removed (including the replayed identical file in arrival 2026-09-17).
+- **Events:** 28 no-change updates (skipped), 28 deletes.
+- **Output:** 1,558 versions; 1,043 open (= the final-state key); 1,066 distinct customers.
+- **Top 5 by versions** (all 4): C0000070, C0000748, C0000761, C0000845, C0001346.
+- **Hidden cases:**
+  - 14 zero-length versions where two updates share a commit_ts. Ordering must use source_seq, not commit_ts; ordering by commit_ts is ambiguous.
+  - Out-of-order and late events across files: commit order beats file order.
+  - Update delivered before its insert.
+  - Delete then re-insert: a new version after a gap.
+  - Back-dated effective_from must be ignored (the spec uses commit time).
+  - Orphan ids are legitimate profiles.
+  - Duplicates inside and across files.
+- **Reference code:** scratchpad `fp003_reference.py` and `fp003_check.py`.
+- **Gotchas seen while building the key:**
+  - `collect()` converts timestamps to the Python process time zone (IST); compare with `date_format` instead.
+  - `createDataFrame` from Python objects crashes the Python worker under Python 3.13 on Windows (use SQL VALUES).
 
 ### Interviewer-only answer key for FP-002 (from the reference regeneration; do not reveal before submission)
 

@@ -167,6 +167,7 @@ Teach:
 - Why data moves
 - What causes shuffle
 - Cost of shuffle
+- When shuffle size can be greater than data size
 
 User must compare:
 No Shuffle Transformation

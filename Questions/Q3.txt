@@ -1,0 +1,134 @@
+FP-003 — Customer-profile history (SCD Type 2) from a change feed
+
+Environment: Windows local Spark 4.0.1 + Delta 4.0.1 (your notebook session). Save as User_Responses\Response_3.ipynb with outputs.
+Schema reference: Input\crm_customer_changes.md
+
+======================================================================
+PART A — The question
+======================================================================
+Business need: Account management wants the full history of every customer profile, so any report can ask "what did
+this customer's profile look like at time T?". Build it from the profile system's change feed.
+
+Input
+- All *.jsonl files under D:\Project_AI\PySpark_Hands_On\Input\landing\crm\customer_changes\ (every arrival_date folder).
+- One JSON change event per line:
+    event_id        STRING
+    op              STRING    r = initial snapshot row, c = create, u = update, d = delete
+    source_seq      BIGINT    commit order in the source system (higher = committed later)
+    commit_ts       STRING    commit time, ISO-8601 UTC with milliseconds, e.g. 2026-09-06T03:50:35.000Z
+    customer_id     STRING
+    effective_from  STRING    business date (not used in this exercise)
+    changed_fields  ARRAY<STRING>
+    before, after   STRUCT<segment STRING, account_manager STRING, city STRING, credit_limit INT, status STRING>
+                    (before is null for r/c; after is null for d)
+
+Rules
+1. Lines that are not valid JSON events are ignored; report how many.
+2. An event delivered more than once (same event_id) counts once.
+3. Apply each customer's events in source_seq order.
+4. Every r or c event, and every u event that changes at least one attribute, starts a new version holding the
+   "after" image. A u event that changes nothing starts no version and ends none.
+5. A version is valid from its event's commit_ts until the commit_ts of the customer's next version-starting or
+   d event. A d event ends the open version and starts none; a later c starts a new version.
+6. The last version of a customer that was not deleted is open: valid_to_ts is null and is_current is true.
+
+Output — overwrite Delta
+- Path:  D:\Project_AI\PySpark_Hands_On\Output\focused\FP-003_customer_profile_scd2
+- Table: FP_003_customer_profile_scd2
+- Schema:
+    customer_id          STRING
+    segment              STRING
+    account_manager      STRING     nullable
+    city                 STRING
+    credit_limit         INT
+    status               STRING
+    valid_from_ts        TIMESTAMP  instant of commit_ts
+    valid_to_ts          TIMESTAMP  null when open
+    is_current           BOOLEAN
+    source_seq           BIGINT     of the event that started the version
+    valid_from_utc_text  STRING     valid_from_ts rendered in UTC,           format yyyy-MM-dd HH:mm:ss.SSS
+    valid_from_ist_text  STRING     valid_from_ts rendered in Asia/Kolkata,  format yyyy-MM-dd HH:mm:ss.SSS
+
+Acceptance criteria
+- At most one open version per customer; open versions = customers whose last event is not a delete.
+- A customer's versions never overlap: each version's valid_to_ts equals the next version's valid_from_ts, except
+  across a delete.
+- For every row, valid_from_ist_text is exactly 5h30m later than valid_from_utc_text, whatever your session time zone.
+- Determinism: run the whole build twice (run 1 and run 2, see Part B). Both runs write the same path, giving Delta
+  versions 0 and 1. Prove the two versions hold identical rows: the difference in each direction is 0 rows.
+
+Submit (counts printed by the notebook)
+- files read, input lines, ignored lines, distinct events, duplicate deliveries removed, no-change updates,
+  deletes, versions written, open versions, distinct customers
+- top 5 customers by number of versions (ties: customer_id ascending)
+- Delta data-file count of version 0 and version 1, and the two difference counts
+- the Part C report
+
+Function overview (may or may not be needed; choose what you think is best)
+- spark.read.schema(s).option("columnNameOfCorruptRecord", c).json(path): parse JSON with an explicit schema;
+  unparseable lines keep their text in column c and nulls elsewhere.
+- col("after.segment") / selectExpr("after.*"): read fields of a struct column.
+- dropDuplicates(["k"]): keep one row per key (which one is unspecified). Alternative: row_number() over a window
+  on k with an explicit order: deterministic choice.
+- size(array_col): number of elements (0 for an empty array). Alternative: compare structs directly, before == after.
+- Window.partitionBy(k).orderBy(o) + lead(c) / lag(c): value of c in the next / previous row of the same key.
+  Alternatives for "valid to": a self-join to the next version, or min(c) over a frame of the following rows.
+- try_cast(x AS TIMESTAMP): string -> timestamp, null when unparseable. NOTE: Spark 4 runs in ANSI mode, so a plain
+  cast() of a bad value raises an error instead of returning null. to_timestamp / try_to_timestamp(col, fmt)
+  parse with an explicit pattern.
+- date_format(ts, fmt): renders a timestamp as text in the SESSION time zone (spark.sql.session.timeZone).
+  from_utc_timestamp(ts, tz): shifts an instant so its rendering shows tz's wall-clock time. Ways to get both
+  texts: switch the session zone between renders; shift with from_utc_timestamp / to_utc_timestamp before
+  date_format; or format with an explicit zone conversion. Pick one and make it independent of the session zone.
+- groupBy(k).count().orderBy(desc("count"), k).limit(5): Top-N.
+- a.exceptAll(b): rows of a missing from b (duplicates respected). subtract() is the distinct-only version.
+  Alternative proof: compare an order-independent fingerprint (count + sum of a row hash) of both versions.
+- spark.read.format("delta").option("versionAsOf", n).load(path): read an older version (time travel).
+  spark.sql("DESCRIBE DETAIL delta.`<path>`"): numFiles; DESCRIBE HISTORY: one row per version.
+
+======================================================================
+PART B — Spark config for this exercise (performance scenario)
+======================================================================
+Run 1 (before your first write), in the existing session (runtime settings, no restart needed):
+    spark.conf.set("spark.sql.adaptive.enabled", "false")      # disable AQE
+    print(spark.conf.get("spark.sql.shuffle.partitions"))       # confirm it is 200 (the default)
+Keep master local[4]. Do not change memory settings for this exercise.
+Run 2: apply the Part D fix of your choice, then run the same build again into the same path.
+
+======================================================================
+PART C — Observe and report back (Spark UI http://localhost:4040)
+======================================================================
+Before running, predict: how many Parquet data files will run 1 write?
+For run 1 AND run 2, report:
+1. SQL / DataFrame tab -> the query of your Delta write -> details graph:
+   a) the Exchange node's partitioning (expression and number of partitions)
+   b) is there an AQEShuffleRead node above it? If yes, how many partitions after coalescing?
+2. Stages tab -> the stage that contains your Window operator (it reads the shuffle):
+   a) number of tasks
+   b) Summary Metrics: median and max task Duration, median Shuffle Read Size
+   c) stage Duration
+3. Data files in the Delta version written by that run (DESCRIBE DETAIL numFiles, or count the
+   part-*.parquet files added in that version).
+
+======================================================================
+PART D — The bottleneck you will see, and how to fix it
+======================================================================
+What happens in run 1
+- The Window needs every row of a customer in one partition, so Spark inserts a shuffle (Exchange
+  hashpartitioning(customer_id, 200)). With AQE off, the shuffle keeps exactly spark.sql.shuffle.partitions = 200
+  partitions. About 1,600 rows spread over 200 partitions is roughly 8 rows per task.
+- Result: 200 tiny tasks whose scheduling and start-up cost dwarfs the work (median task duration of a few ms,
+  stage duration dominated by overhead). The writer also creates one file per non-empty partition, so up to
+  200 small Parquet files: the "small file problem", which slows every later read (file listing, opening, metadata).
+- Measured on this dataset (interviewer run, local[4]): AQE off -> 200 files, write about 11 s;
+  AQE on -> 1 file, about 4 s; AQE off + shuffle.partitions=4 -> 4 files, about 2 s.
+
+Fixes (choose one for run 2; be ready to say why)
+1. Re-enable AQE: spark.conf.set("spark.sql.adaptive.enabled", "true"). Spark measures the real shuffle size at
+   runtime and coalesces small partitions (AQEShuffleRead). The default since Spark 3.2, and the general fix.
+2. Size the shuffle for the data: spark.conf.set("spark.sql.shuffle.partitions", "4") (about 1–3x the cores for
+   small data). Predictable, but a fixed number goes stale as the data grows.
+3. Control the file count at the write: df.coalesce(n) (no extra shuffle, but it also reduces the parallelism of
+   the work before it) or df.repartition(n) (an extra shuffle, balanced files).
+4. Compact after writing: OPTIMIZE delta.`<path>` (Delta bin-packing; Databricks also offers optimized writes and
+   auto-compaction). It treats the symptom after the fact.
