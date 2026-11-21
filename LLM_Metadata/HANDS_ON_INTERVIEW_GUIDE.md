@@ -24,7 +24,7 @@ Root: `D:\Project_AI\PySpark_Hands_On`
 | `Output\` | Exercise outputs; use `Output\focused\<exercise>` |
 | `Questions\` | Issued prompts (`Q1.txt`, `Q2.txt`, ...) |
 | `User_Responses\` | Candidate notebooks (`Response_<n>.ipynb`) |
-| `LLM_Metadata\` | Active guide, `LEARNING_PLAN.md`, focused `SESSION_NOTES.md`, topic menus and an inactive reference archive |
+| `LLM_Metadata\` | Active guide, `LEARNING_PLAN.md`, focused `SESSION_NOTES.md`, per-exercise step log `PROGRESS_<exercise>.md`, topic menus and an inactive reference archive |
 
 ## Dataset
 
@@ -229,7 +229,9 @@ inspect evidence, and state the trade-off briefly. Runtime SQL settings differ f
 changing driver memory reliably requires a new process/kernel, not just spark.stop() and a new builder.
 Optional memory/failure labs need bounded data, an isolated capped process and a clear restore path.
 
-At a natural stopping point, update SESSION_NOTES.md with only the current task, actual design decisions, unresolved
+Follow the tracking and anti-hallucination guardrails in LEARNING_PLAN.md on every reply: the LLM_Metadata files
+(SESSION_NOTES.md, PROGRESS_<exercise>.md, the prompt) are the instructor's only source of truth, and they are read
+before and updated after each exchange. Also, at a natural stopping point, update SESSION_NOTES.md with only the current task, actual design decisions, unresolved
 questions and pending UI checkpoint. Keep old records in the archive; do not resume historical quizzes or maintain
 scores. For reusable validated output, update Input/intermediate/<output>.md and the Input index with actual schema,
 grain, rows, producing exercise and Delta version. Preserve original candidate cells if adding review notes.

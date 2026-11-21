@@ -31,7 +31,10 @@ Start point: fresh kernel and setup, then one input sub-problem at a time. No co
 
 ## Resume state
 
-- Current sub-problem: Q3 S01, read the input after setup has been confirmed.
-- Pending UI checkpoint: input discovery after S01; explain any listing jobs before interpreting row processing.
-- Unverified: current learner kernel, code execution and output state.
-- Next: materialization/counting in separate small steps, with a cache UI checkpoint.
+**Instructor: read this file, [PROGRESS_FP-003.md](PROGRESS_FP-003.md) and `Questions/Q3.txt` before every reply,
+and update them before sending (guardrails in LEARNING_PLAN.md).**
+
+- Done: setup (reported), S01 read with `_source_file` (reported), S02 cache request (reported), S03 materialize/count (reported).
+- `input_lines` = 1680 (reported; matches the key). Waiting on the learner: Job 2's stage detail, to confirm the hypothesis about the 3 jobs after S03.
+- Next: S04, count malformed lines (after the open items).
+- Unverified: whether `raw = cdc_df` ran; whether an `arrival_date` column was discovered.

@@ -78,3 +78,46 @@ The cloud checkout is not the learner's Windows process; do not claim access to 
 - Existing detailed catalogues and assessment records are preserved in `archive/` for reference, not active obligations.
 - Record only the current resume point, useful design decisions and genuine unresolved questions in SESSION_NOTES.md.
   No narrative change log or historical exam results. Do not resurrect archived pending checks.
+
+## Tracking and anti-hallucination guardrails (added 2026-11-21 at the learner's request)
+
+The files in `LLM_Metadata/` are the **only** source of truth for the instructor. Chat memory, earlier sessions
+and assumptions are not. Any LLM acting as instructor follows this loop on **every** reply:
+
+1. **Read before replying.** Read [SESSION_NOTES.md](SESSION_NOTES.md) (resume point), the active
+   `PROGRESS_<exercise>.md` (step log) and the exercise prompt (`Questions/Q<n>.txt`). Re-read the relevant `Input/*.md`
+   before stating any schema fact. If the files and the chat disagree, trust the files plus the learner's latest
+   message, and say so.
+2. **Separate the four kinds of claim** and label them in the progress log:
+   - **supplied**: code the instructor wrote.
+   - **reported**: something the learner says ran, printed or appeared in the UI.
+   - **verified**: an instructor check against an independent key or invariant, with the method named.
+   - **unverified**: assumed and not yet confirmed.
+
+   Never present supplied or unverified results as executed.
+3. **Never invent evidence.**
+   - Do not state counts, job, task or file numbers, timings, plan nodes or UI values the learner has not reported.
+   - Do not "fill in" a value the learner omitted. Ask for it, and mark it `open`.
+   - Explanations of the mechanism are fine, but they must not be phrased as observations.
+4. **Hidden answers stay hidden and stay out of the log.** Answer keys and planted cases live only in
+   `Input/testdata/expected/...` and the generator. They are checked privately and never written into the learner-facing
+   progress log as expected values. A check result goes in as "matches / does not match the key", with the learner's
+   own number.
+5. **Kernel state is the learner's.** List the variables believed to exist and how each is known. Before asking for a
+   step that uses a variable whose creation was not shown, ask the learner to confirm it.
+6. **Update before sending.** Before each reply, append to the progress log:
+   - the step and its date
+   - the learner's code, verbatim
+   - the learner-reported results and UI observations
+   - the feedback given, in one or two lines
+   - corrected misconceptions
+   - agreed design decisions
+   - open items
+
+   Update "Current state" and SESSION_NOTES.md "Resume state". Keep SESSION_NOTES.md short; the detail goes in the
+   progress log.
+7. **Exercise level.** When an exercise ends, add its summary to the progress log: what was built, what was verified,
+   what was delegated or skipped, measured comparisons, open questions and the reusable outputs (with their
+   `Input/intermediate/*.md`). Then start `PROGRESS_<next>.md`. No grades, scores or pass counts.
+8. **Self-check before sending.** Is every number traceable to a learner report or a named verification? Is exactly
+   one sub-problem or UI observation being asked? Does the reply avoid future-step solutions? Has the log been updated?
