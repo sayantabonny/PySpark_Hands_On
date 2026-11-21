@@ -53,12 +53,24 @@ Follow [`HANDS_ON_INTERVIEW_GUIDE.md`](HANDS_ON_INTERVIEW_GUIDE.md). Candidate p
 
 **Tracking:**
 
-- `TOPIC_COVERAGE.csv`: one row per atomic topic, with `Importance`, `Target_Passes` and `Pass_1`…`Pass_5_Evidence`.
+- `TOPIC_COVERAGE.csv` (streamlined 2026-11-21 at the user's request): one row per **skill**, 132 in total.
+  - IDs: core objectives `C01`–`C17` (treated as High) and operation skills `O<section>.<item>`.
+  - Columns: `Importance`, `Target_Passes`, `Old_IDs` and `Pass_1`…`Pass_5_Evidence`.
+  - The old 322-entry list, the old trackers and `TOPIC_ID_MAPPING.csv` are in `LLM_Metadata\archive\2026-11-21_before_streamlining\`.
+  - Migrated passes are grouped as one pass per exercise.
   - A topic passes when the candidate's **own** code implements it correctly and the dependent acceptance criteria are met. No explanation is needed.
   - Topics fixed only by the interviewer do not pass. They are listed as "corrected by interviewer" and come back in later exercises.
   - Never a pass: a mention, an unattempted prompt, or the interviewer's own code or explanation. Vary the context across passes.
-- `SPARK_UI_COVERAGE.csv`: `Depth_Reached` 0–3 with evidence per level. Interviewer-only teaching goes in `Taught_In`.
-- When the user edits importance tags in `Primary_Topics.txt`, re-sync `Importance` and `Target_Passes`. Last synced 2026-10-11: Joins and Conditional Logic are now High; Window Functions and Data Modeling/CDC are Very High.
+- `SPARK_UI_COVERAGE.csv` (streamlined 2026-11-21): core concepts `U01`–`U12` and labs `L01`–`L12`.
+  - Each lab has a Part B trigger, a Part C observation and the concepts it exercises.
+  - Columns: `Depth_Reached` 0–3 with evidence per level, `Taught_In` for interviewer-only teaching, and `Pending` for issued but unreported Part C.
+- `KNOWLEDGE_CHECKS.csv` (added 2026-11-21 at the user's request): the attention, recall and reasoning check log (rules in the guide, "Knowledge checks").
+  - One question per teaching turn, at the end of the turn, with key points pre-registered before asking.
+  - No hints unless asked (a hint caps the score at 0.5); no rote memorization; never the same question twice.
+  - Graded in at most three lines at the start of the next turn.
+  - Leitner boxes schedule RECALL. Weaknesses (average below 0.67 over at least two checks) feed the next exercise as supporting topics.
+  - The learner profile below is updated after every graded check.
+- When the user edits importance tags in `Primary_Topics.txt`, re-sync `Importance` and `Target_Passes`. Last synced 2026-11-21, during the streamlining; the tags are unchanged since the user's 2026-10-11 edit: Joins and Conditional Logic High; Window Functions and Data Modeling/CDC Very High.
 
 **Environment:**
 
@@ -114,7 +126,9 @@ spark = (SparkSession.builder
 - No Hive support, so the catalog is in memory: table names disappear on restart, but paths persist.
 - Spark UI at `http://localhost:4040`. Teach from actual run evidence; never assert fixed job, stage or task counts.
 
-## Current position — FP-003 issued 2026-10-21 (first exercise in the four-part A–D format); awaiting the user's code and Part C report
+## Current position — FP-003 issued 2026-10-21 (A–D format), user's notebook in progress; plan streamlined and knowledge checks added 2026-11-21 (K001 asked)
+
+- **2026-11-21:** the user asked to restart FP-003 from scratch. The prompt `Questions\Q3.txt` is unchanged; the earlier partial `Response_3.ipynb` is a draft the user may overwrite. No FP-003 output exists yet. K001 was unanswered and is carried once into this turn; if it is not answered next turn, log it as skipped.
 
 - **FP-001** closed 2026-10-07 with 26 first passes (CO-a; OP-01.01/.03/.06; OP-03.01/.02/.04; OP-06.01/.02; OP-09.02/.03/.18; OP-14.01/.02/.04/.07/.09/.10/.19; OP-15.01–.05/.09; OP-23.01).
   - Not passed: OP-06.08, OP-22.01, CO-l.
@@ -124,21 +138,21 @@ spark = (SparkSession.builder
   - Targets: CO-f/CO-d/CO-m, OP-04 latest record and dedup, OP-05 latest per key and row_number, CO-b `_source_file`, CO-c/OP-08 multi-format timestamps and time zone, CO-l dirty data, OP-03.14 aggregation + window, OP-23 reconciliation.
   - Low secondaries present: trim/string cleaning, select/withColumn.
 - **FP-002 closed** 2026-10-16. The second submission was reviewed under the new single-round protocol, the notebook was annotated (M1–M6, validated FIX-1..5, design Q1–Q5), and the corrected tables were written as Delta v3. There are 25 new passes (see the round log), giving 45 topics with ≥1 pass.
-  - Corrected by interviewer, so not passed; revisit: CO-c / OP-08 multi-format timestamp parsing and time zones (OP-08.04 to_timestamp, OP-08.25 timezone concepts, epoch to timestamp), deterministic total ordering, OP-23.01 record-count reconciliation (not shown), and the `_corrupt_record` cache vs staging pattern.
+  - Corrected by interviewer, so not passed; revisit (new IDs): C03, O08.1, O08.4 and O08.5 (multi-format parsing, epoch ms, time zones); O05.3 deterministic tie-breaking; O23.1 reconciliation (not shown in FP-002); the O14.3 `_corrupt_record` cache vs staging pattern.
   - **Carry-forward into FP-003 as coding requirements:** (1) prove the result is deterministic, by rerunning or comparing two runs/versions with `exceptAll` or hashes, and (2) render `updated_at_utc` explicitly in UTC and in Asia/Kolkata in the output or the report.
   - The candidate's `Input\staging\tickets_temp` (2.3 MB) still exists; the user was asked to delete it.
 - **FP-003 issued 2026-10-21:** customer-profile SCD2 from the CDC feed. Prompt `Questions\Q3.txt`, notebook `User_Responses\Response_3.ipynb`, output `Output\focused\FP-003_customer_profile_scd2` (table `FP_003_customer_profile_scd2`).
-  - Primary targets: Very High OP-20.02 SCD2, OP-20.05 CDC processing, OP-20.16 idempotent processing, OP-04.06 lead and OP-04.12 next-record comparison.
-  - Medium: OP-10 nested struct access, OP-17.04 except (exceptAll), OP-14.07 JSON, OP-07 nulls, OP-08.05 date_format and OP-08.25 time zones (carry-forward), OP-21.12 time travel.
-  - Low: OP-18 orderBy/desc/limit Top-N, plus select/alias/where as needed.
+  - Primary targets (new IDs): Very High O20.2 SCD2, O20.4 CDC processing, O20.12 idempotent processing, O04.3 lag/lead next-record comparison; C04 dedup of events.
+  - Medium: O10.1 nested struct access, O17.2 exceptAll, O14.3 JSON and corrupt records, O07.1 nulls, O08.2 date_format and O08.5 time zones (carry-forward), O22.6 time travel, O05.3 deterministic tie-breaking.
+  - Low: O18.1 Top-N ordering, plus O01.1 / O01.3 as needed.
   - Carry-forward from FP-002 built in: determinism proof (Delta v0 vs v1 exceptAll both ways) and UTC vs IST text columns.
-  - **Part B/C/D scenario:** AQE off with shuffle.partitions 200, giving 200 tiny tasks and up to 200 small files (UI-OP-06 partitions, UI-CO-o shuffle partition tuning, UI-CO-j AQE, UI-CO-f Exchange). Interviewer scratch run (local[4]): AQE off → 200 files, write about 11.4 s; AQE on → 1 file, about 3.9 s; AQE off + 4 partitions → 4 files, about 2.2 s. Run 2 uses the user's choice of fix.
+  - **Part B/C/D scenario:** AQE off with shuffle.partitions 200, giving 200 tiny tasks and up to 200 small files (new IDs: lab L04 with concepts U07 shuffle-partition tuning, U04 AQE and U02 Exchange). Interviewer scratch run (local[4]): AQE off → 200 files, write about 11.4 s; AQE on → 1 file, about 3.9 s; AQE off + 4 partitions → 4 files, about 2.2 s. Run 2 uses the user's choice of fix.
   - The function overview noted ANSI-mode `cast` errors in Spark 4: verified, `cast('yesterday' as bigint)` raises CAST_INVALID_INPUT.
-- **Superseded:** the FP-002 Spark UI drill (2026-10-16), replaced by the A–D format. Its focus (UI-OP-04 stages, UI-CO-f Exchange) is covered by FP-003 Part C.
+- **Superseded:** the FP-002 Spark UI drill (2026-10-16), replaced by the A–D format. Its focus (now L03 / U01 stages and U02 Exchange) is covered by FP-003 Part C.
   - Prediction: does the window add a shuffle, and where is the stage boundary?
   - Location: SQL / DataFrame tab → the query of the Delta write → the Window node and the Exchange beneath it.
   - Report back: the Exchange partitioning expression; the number of tasks in the stage that contains Window; that stage's Shuffle Read size; whether AQEShuffleRead coalesced the partitions.
-  - Optional follow-up later: scan PartitionFilters / files read for the `arrival_date` selection (UI-CO-l / UI-OP-02).
+  - Optional follow-up later: scan PartitionFilters / files read for the `arrival_date` selection (L02 / U05).
 
 ### Interviewer-only answer key for FP-003 (validated 2026-10-21 by a Spark reference run; 0 mismatches against `Input\testdata\expected\small\warehouse\cdc_customer_profile_scd2.csv`; do not reveal before submission)
 
@@ -183,7 +197,17 @@ Recompute this after the user regenerates, if their log differs.
 ### Other notes
 
 - The user showed that DBeaver/DuckDB `delta_scan` works with explicit columns, while `SELECT *` fails on raw corrupt payloads. Use the guide's `_corrupt_record` notes if relevant.
-- Coverage: 45 of 322 topics have ≥1 pass (FP-001: 26, FP-002: 25 incl. second passes); no Spark UI section has demonstrated depth yet.
+- Coverage (after the 2026-11-21 streamlining): 25 of 132 skills have ≥1 pass and 6 have 2 passes (O01.1, O01.2, O09.1, O14.1, O14.3, O14.6). The old basis was 45 of 322 atomic topics. No Spark UI concept or lab has demonstrated depth yet.
+
+## Learner profile (knowledge checks)
+
+- Checks asked: 2. K001 (RECALL, window default frame, from FP-002) was skipped by the user. K002 (REASONING, Delta time travel and VACUUM, difficulty 2) is awaiting an answer. Graded: 0.
+- User preference (2026-11-21): FP-003 is a fresh start, so recall checks draw on FP-003 onward and general concepts, not on FP-001/FP-002 material. FP-002 weaknesses come back only through exercises.
+- Accuracy: not yet measured, overall or by type (ATTENTION / RECALL / REASONING).
+- Weaknesses: none measured yet. Concepts corrected by the interviewer in reviews are candidates for early RECALL: window default frame (FP-002), session time zone vs UTC parsing (FP-002), deterministic tie-breaks (FP-002), identifier vs path (FP-001), null semantics in `when` (FP-001).
+- Strengths: none measured yet.
+- Trend: needs at least 10 graded checks.
+- Leitner state: O22.6 / O21.3 box 1 (K002 pending).
 
 ## Round log
 

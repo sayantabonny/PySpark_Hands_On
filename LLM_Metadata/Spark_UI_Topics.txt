@@ -1,377 +1,79 @@
-Core Objective:
-a. DAG Analysis
-b. Stage Analysis
-c. Task Analysis
-d. Shuffle Mechanics
-e. Narrow vs Wide Transformations
-f. Exchange Operators
-g. Catalyst Optimizer
-h. Tungsten Engine
-i. Whole Stage Code Generation
-j. Adaptive Query Execution (AQE)
-k. Dynamic Partition Pruning
-l. Predicate Pushdown
-m. Column Pruning
-n. Broadcast Thresholds
-o. Shuffle Partition Tuning
-p. Executor Sizing
-q. Partition Sizing
-r. Memory Management
-s. Spill Handling
-t. Skew Analysis
-
-
-
-Operations:
-
-1. Lazy Evaluation
-
-Experiments:
-df.filter(...)
-df.select(...)
-df.withColumn(...)
-Observe:
-- Why Spark UI remains empty.
-- Why transformations create no jobs.
-
-Then execute:
-count()
-
-Observe:
-- Job creation.
-- Stage creation.
-Explain DAG creation.
-
----
-2. Reading Files
-
-Experiments:
-Read file without inferSchema.
-Read file with inferSchema.
-
-Compare:
-df.explain(True)
-Spark UI
-SQL Tab
-Jobs Tab
-
-Teach:
-- Extra scan
-- Schema inference cost
-- Additional jobs
-- Why inferSchema is expensive
-
----
-
-3. Understanding Jobs
-
-Experiments:
-df.count()
-df.show()
-df.collect()
-df.write.parquet(...)
-
-For each operation:
-User must identify:
-- Number of jobs
-- Why jobs differ
-- Which action triggered them
-
-Teach job boundaries.
-
----
-
-4. Understanding Stages
-
-Experiments:
-df.filter(...)
-df.select(...)
-df.groupBy(...).count()
-df.join(...)
-
-Observe:
-- Stage count
-- Stage DAG
-
-Teach:
-- Narrow transformation
-- Wide transformation
-
-Explain why wide transformations create stage boundaries.
-
----
-
-5. Understanding Tasks
-
-Experiments:
-df.rdd.getNumPartitions()
-Observe task count.
-User must correlate:
-Partitions → Tasks
-
-Teach:
-One partition = One task.
-
-Experiments:
-repartition(5)
-repartition(20)
-repartition(100)
-Observe task changes.
-
----
-
-6. Partitions Deep Dive
-
-Teach:
-
-- Input partitions
-- Shuffle partitions
-- Output partitions
-
-Experiments:
-spark.conf.get("spark.sql.shuffle.partitions")
-Observe default:
-200
-
-Then modify:
-spark.conf.set(
-    "spark.sql.shuffle.partitions",
-    "10"
-)
-
-Run aggregation.
-Compare Spark UI.
-
-Observe:
-- Reduced tasks
-- Reduced shuffle partitions
-
-Explain why Spark defaults to 200.
-
----
-
-7. Shuffle Deep Dive
-
-Experiments:
-groupBy()
-distinct()
-dropDuplicates()
-join()
-
-Observe:
-Stages
-Shuffle Read
-Shuffle Write
-
-Teach:
-- Why data moves
-- What causes shuffle
-- Cost of shuffle
-- When shuffle size can be greater than data size
-
-User must compare:
-No Shuffle Transformation
-vs
-Shuffle Transformation
-
----
-
-8. Exchange Operators
-
-Use:
-
-df.explain(True)
-
-Teach:
-- Exchange
-- HashPartitioning
-- RoundRobinPartitioning
-
-Connect physical plan to Spark UI.
-
----
-
-9. Joins and Spark UI
-
-Experiments:
-Broadcast Join
-Sort Merge Join
-Shuffle Hash Join
-User must inspect:
-
-SQL Tab
-DAG
-Shuffle Metrics
-
-Teach:
-
-- Why Spark chooses each join
-- Broadcast exchange
-
----
-
-10. Caching and Persistence
-
-Experiments:
-
-df.cache()
-df.persist()
-
-Observe:
-Storage Tab
-
-Teach:
-- Memory usage
-- Cache hit
-- Cache miss
-
----
-
-11. Skew Analysis
-
-Generate skewed data.
-
-Observe:
-Tasks duration.
-
-Questions:
-- Which task is slow?
-- Why?
-
-Teach:
-- Data skew
-- Long-running tasks
-- Stragglers
-
----
-
-12. SQL Tab Deep Dive
-
-Teach:
-
-- SQL DAG
-- Physical Plan
-- Adaptive Query Execution
-- Whole Stage Code Generation
-
-User must correlate:
-SQL Plan
-with
-Stages
-with
-Tasks
-
----
-
-13. Adaptive Query Execution
-
-Enable:
-spark.conf.set(
-    "spark.sql.adaptive.enabled",
-    "true"
-)
-
-Observe:
-Plan changes.
-
-Teach:
-- Dynamic optimization
-- Coalesced partitions
-- Runtime statistics
-
----
-
-14. Executor Metrics
-
-Teach:
-
-- Input Size
-- Output Size
-- Executor Run Time
-- Executor CPU Time
-- GC Time
-- Serialization Time
-- Deserialization Time
-
-Use Spark UI metrics for explanation.
-
----
-
-15. Memory Internals
-
-Teach:
-
-- Execution Memory
-- Storage Memory
-- Unified Memory Manager
-
-Use Spark UI memory metrics.
-
----
-
-16. Intentional Failure Lab
-
-Create failures intentionally.
-
-Experiment 1:
-Very low driver memory.
-spark.driver.memory=512m
-
-Perform:
-collect()
-
-Analyze:
-OutOfMemory Error
-Spark UI
-Driver Logs
-
----
-
-Experiment 2:
-Huge repartition.
-repartition(5000)
-
-Analyze:
-Task explosion
-Scheduling overhead
-
----
-
-Experiment 3:
-Large groupBy.
-
-Observe:
-Shuffle spill
-Disk spill
-Memory pressure
-
----
-
-Experiment 4:
-Broadcast oversized table.
-
-Analyze:
-Broadcast failure
-
----
-
-17. Reading Spark UI Like Production Engineers
-
-For every future experiment train the user to inspect:
-
-1. Jobs Tab
-2. Stages Tab
-3. SQL Tab
-4. Executors Tab
-5. Storage Tab
-6. Environment Tab
-
-The user must always answer:
-
-- What happened?
-- Why did it happen?
-- Which stage caused it?
-- Which task caused it?
-- Was shuffle involved?
-- How much data moved?
-- Was memory sufficient?
+Spark UI & Performance Topics (streamlined 2026-11-21)
+=====================================================
+Goal: read the Spark UI like a production engineer, by first experiencing each bottleneck or failure
+(triggered with a config change, Part B of every exercise) and then fixing it.
+Archive of the original list: archive\2026-11-21_before_streamlining\Spark_UI_Topics.txt
+
+Core Concepts
+  U01 Jobs, stages, tasks and the DAG (lazy evaluation, narrow vs wide, stage boundaries)
+  U02 Shuffle mechanics and Exchange operators (hash / round-robin / range partitioning)
+  U03 Query planning: Catalyst, Tungsten, whole-stage code generation
+  U04 Adaptive Query Execution (coalescing, skew join, join switching, runtime statistics)
+  U05 Scan optimizations: column pruning, predicate pushdown, partition and dynamic partition pruning
+  U06 Join strategies and broadcast thresholds
+  U07 Partition sizing and shuffle-partition tuning
+  U08 Executor sizing and executor metrics (CPU, GC, serialization)
+  U09 Memory management and spill (unified memory: execution vs storage)
+  U10 Caching and persistence
+  U11 Skew analysis and stragglers
+  U12 Failure diagnosis (driver OOM, executor OOM, broadcast failure, task explosion, logs)
+
+
+Labs (each one is run inside an exercise: trigger in Part B, observe in Part C, fix in Part D)
+===============================================================================================
+
+L01 Lazy evaluation and job boundaries                                   [U01]
+  Trigger : chain filter / select / withColumn, then call count, show, collect and write in turn.
+  Observe : no job before an action; how many jobs each action creates and why.
+
+L02 Reading files: schema inference and scan pruning                     [U03, U05]
+  Trigger : read the same files with and without inferSchema; select few vs all columns;
+            filter on a partition column vs a data column.
+  Observe : the extra inference scan; PartitionFilters / PushedFilters / ReadSchema in the scan node.
+
+L03 Stages and tasks                                                     [U01, U07]
+  Trigger : a narrow-only pipeline vs groupBy / join; repartition(5 / 20 / 100).
+  Observe : stage boundaries at wide transformations; one task per partition.
+
+L04 Partitions and shuffle partitions                                    [U07, U04]
+  Trigger : AQE off with the default spark.sql.shuffle.partitions = 200; then a tuned value or AQE on.
+  Observe : the task count of the shuffle stage, tiny tasks, output file count; why the default is 200.
+
+L05 Shuffle and Exchange                                                 [U02]
+  Trigger : groupBy, distinct, dropDuplicates and a join compared with a narrow transformation.
+  Observe : Shuffle Read / Write per stage; the Exchange type in explain(); when shuffle size can be
+            greater than data size (serialization, wide rows, exploded data, no column pruning).
+
+L06 Join strategies                                                      [U06, U02]
+  Trigger : autoBroadcastJoinThreshold = -1 vs a broadcast hint; SHUFFLE_HASH / MERGE hints.
+  Observe : BroadcastExchange vs SortMergeJoin vs ShuffledHashJoin in the SQL tab; shuffle metrics.
+
+L07 SQL tab, plans and AQE                                               [U03, U04]
+  Trigger : the same query with AQE on and off; explain("formatted").
+  Observe : plan nodes mapped to stages and tasks; WholeStageCodegen ids; AQEShuffleRead and the
+            final vs initial plan.
+
+L08 Caching and persistence                                              [U10, U09]
+  Trigger : reuse a DataFrame with and without cache() / persist(level); unpersist.
+  Observe : the Storage tab (fraction cached, size); cache hits in later jobs; eviction under memory pressure.
+
+L09 Skew and salting                                                     [U11, U04]
+  Trigger : join or aggregate on a hot key (placeholder / hot customer) with AQE skew handling off.
+  Observe : the max vs median task duration in stage Summary Metrics; the straggler; then salting
+            or AQE skew join.
+
+L10 Executor metrics, memory and spill                                   [U08, U09]
+  Trigger : a large groupBy / sort with lower spark.executor.memory, spark.memory.fraction or local[1].
+  Observe : Spill (memory / disk), GC time, peak execution memory, serialization time in the Executors
+            and Stages tabs.
+
+L11 Failure lab (bounded, isolated session, heap caps)                   [U12]
+  Trigger : (a) spark.driver.memory = 512m plus collect() of a large result; (b) repartition(5000);
+            (c) broadcast an oversized table; (d) an executor OOM on an exploded or skewed aggregate.
+  Observe : the error message and its failing stage / task; the driver log; task explosion and
+            scheduling overhead; how each fix changes the UI.
+
+L12 Reading the Spark UI like a production engineer                      [all, used in every lab]
+  Tabs    : Jobs, Stages, SQL / DataFrame, Executors, Storage, Environment.
+  Always answer: What happened? Why? Which stage and task caused it? Was there a shuffle?
+                 How much data moved? Was memory sufficient? What would you change?

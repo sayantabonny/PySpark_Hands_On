@@ -1,0 +1,323 @@
+Old_ID,Old_Topic,New_IDs
+CO-a,Conditional Data Manipulation,C01
+CO-b,"Addition of new fields like a primary key, filename metadata, insertion date time, surrogate key",C02
+CO-c,Date and TimeStamp Manipulation,C03
+CO-d,"Deduplication, Sorting & Selective Dropping",C04
+CO-e,"Accumulator(Counters, Sums, Debugging metrics) & Broadcast Variable",C05
+CO-f,Advanced Window Functions,C06
+CO-g,Window Functions with Aggregation,C06
+CO-h,"Working with foreachPartition, mapPartitions, LocalIterator",C07
+CO-i,"Working with transform, map, array, create_map, to_json",C08
+CO-j,Operations on Complex Data Types (Arrays/Structs),C08
+CO-k,EDA & Statistical Profiling,C09
+CO-l,Dirty Data Handling,C10
+CO-m,Duplicate Detection & Deduplication,C04
+CO-n,Cardinality & Categorical Profiling,C09
+CO-o,Correlation & Relationship Analysis,C11
+CO-p,Partitioning Strategy,C12
+CO-q,Join Optimization Strategies,C13
+CO-r,Joins with and without simple Salting Technique,C14
+CO-s,Skew Handling Strategies,C14
+CO-t,Pivot Tables (Cross-Tabulation),C15
+CO-u,Year-Over-Year (YoY) Analysis and Month-Over-Month (MoM) Analysis,C16
+CO-v,Gap/Anti-Join Analysis,C17
+OP-01.01,select(),O01.1
+OP-01.02,selectExpr(),O01.1
+OP-01.03,withColumn(),O01.2
+OP-01.04,withColumns(),O01.2
+OP-01.05,withColumnRenamed(),O01.2
+OP-01.06,drop(),O01.1
+OP-01.07,alias(),O01.1
+OP-01.08,filter(),O01.3
+OP-01.09,where(),O01.3
+OP-01.10,distinct(),O01.4
+OP-01.11,dropDuplicates(),O01.4
+OP-02.01,Inner Join,O02.1
+OP-02.02,Left Join,O02.1
+OP-02.03,Right Join,O02.1
+OP-02.04,Full Outer Join,O02.1
+OP-02.05,Left Semi Join,O02.2
+OP-02.06,Left Anti Join,O02.2
+OP-02.07,Cross Join,O02.1
+OP-02.08,Multi-column Joins,O02.3
+OP-02.09,Join with Expressions,O02.3
+OP-02.10,Null Handling in Joins,O02.4
+OP-02.11,Duplicate Join Keys / Join Cardinality,O02.5
+OP-02.12,Broadcast Join,O02.6
+OP-02.13,Join Hints,O02.6
+OP-02.14,Skewed Join Concepts,O02.7
+OP-03.01,groupBy(),O03.1
+OP-03.02,agg(),O03.1
+OP-03.03,sum(),O03.1
+OP-03.04,count(),O03.1
+OP-03.05,countDistinct(),O03.2
+OP-03.06,avg(),O03.1
+OP-03.07,min(),O03.1
+OP-03.08,max(),O03.1
+OP-03.09,collect_list(),O03.3
+OP-03.10,collect_set(),O03.3
+OP-03.11,Conditional Aggregation,O03.4
+OP-03.12,Multiple Aggregations,O03.1
+OP-03.13,Aggregation + Join,O03.5
+OP-03.14,Aggregation + Window,O03.6
+OP-04.01,Window.partitionBy(),O04.1
+OP-04.02,Window.orderBy(),O04.1
+OP-04.03,rowsBetween(),O04.5
+OP-04.04,rangeBetween(),O04.5
+OP-04.05,lag(),O04.3
+OP-04.06,lead(),O04.3
+OP-04.07,first(),O04.4
+OP-04.08,last(),O04.4
+OP-04.09,Running Aggregations,O04.6
+OP-04.10,Cumulative Calculations,O04.6
+OP-04.11,Rolling Calculations,O04.6
+OP-04.12,Previous/Next Record Comparisons,O04.3
+OP-04.13,Window + Conditional Logic,O04.9
+OP-04.14,Multiple Window Specifications,O04.9
+OP-04.15,Row Frame vs Range Frame,O04.5
+OP-04.16,Sessionization,O04.7
+OP-04.17,Gap Detection,O04.7
+OP-04.18,Event Sequence Analysis,O04.8
+OP-04.19,Deduplication using Windows,O04.10
+OP-04.20,Latest Record Selection,O04.10
+OP-05.01,distinct(),O05.1
+OP-05.02,dropDuplicates(),O05.1
+OP-05.03,Deduplication using Window Functions,O05.2
+OP-05.04,Latest Record per Key,O05.2
+OP-05.05,Earliest Record per Key,O05.2
+OP-05.06,Deduplication using Timestamp,O05.2
+OP-05.07,Deduplication Before/After Join,O05.4
+OP-05.08,row_number() for Deduplication,O05.2
+OP-06.01,when(),O06.1
+OP-06.02,otherwise(),O06.1
+OP-06.03,Nested when(),O06.1
+OP-06.04,Conditional Aggregation,O06.3
+OP-06.05,Conditional Logic with Windows,O06.3
+OP-06.06,Conditional Logic with Joins,O06.3
+OP-06.07,Conditional Logic with Date/Time,O06.3
+OP-06.08,Conditional Logic with Nulls,O06.2
+OP-06.09,coalesce(),O06.2
+OP-07.01,isNull(),O07.1
+OP-07.02,isNotNull(),O07.1
+OP-07.03,isnan(),O07.2
+OP-07.04,coalesce(),O07.3
+OP-07.05,fillna(),O07.3
+OP-07.06,dropna(),O07.3
+OP-07.07,na.fill(),O07.3
+OP-07.08,na.drop(),O07.3
+OP-07.09,Nulls in Joins,O07.4
+OP-07.10,Nulls in Aggregations,O07.4
+OP-07.11,Nulls in Window Functions,O07.4
+OP-07.12,Null vs NaN,O07.2
+OP-08.01,current_date(),O08.3
+OP-08.02,current_timestamp(),O08.3
+OP-08.03,to_date(),O08.1
+OP-08.04,to_timestamp(),O08.1
+OP-08.05,date_format(),O08.2
+OP-08.06,year(),O08.2
+OP-08.07,month(),O08.2
+OP-08.08,day(),O08.2
+OP-08.09,dayofweek(),O08.2
+OP-08.10,dayofmonth(),O08.2
+OP-08.11,weekofyear(),O08.2
+OP-08.12,hour(),O08.2
+OP-08.13,minute(),O08.2
+OP-08.14,second(),O08.2
+OP-08.15,datediff(),O08.3
+OP-08.16,months_between(),O08.3
+OP-08.17,add_months(),O08.3
+OP-08.18,date_add(),O08.3
+OP-08.19,date_sub(),O08.3
+OP-08.20,unix_timestamp(),O08.4
+OP-08.21,from_unixtime(),O08.4
+OP-08.22,Epoch to Timestamp,O08.4
+OP-08.23,Timestamp to Epoch,O08.4
+OP-08.24,Timestamp Arithmetic,O08.3
+OP-08.25,Timezone Concepts,O08.5
+OP-09.01,lower(),O09.1
+OP-09.02,upper(),O09.1
+OP-09.03,trim(),O09.1
+OP-09.04,ltrim(),O09.1
+OP-09.05,rtrim(),O09.1
+OP-09.06,length(),O09.2
+OP-09.07,substring(),O09.2
+OP-09.08,regexp_replace(),O09.1
+OP-09.09,regexp_extract(),O09.2
+OP-09.10,split(),O09.2
+OP-09.11,concat(),O09.3
+OP-09.12,concat_ws(),O09.3
+OP-09.13,replace(),O09.1
+OP-09.14,like,O09.4
+OP-09.15,contains(),O09.4
+OP-09.16,startswith(),O09.4
+OP-09.17,endswith(),O09.4
+OP-09.18,String Cleaning,O09.1
+OP-09.19,String Parsing,O09.2
+OP-10.01,explode(),O10.2
+OP-10.02,posexplode(),O10.2
+OP-10.03,Array Columns,O10.3
+OP-10.04,Struct Columns,O10.1
+OP-10.05,Nested Column Access,O10.1
+OP-10.06,Arrays of Structs,O10.1
+OP-10.07,Structs Containing Arrays,O10.1
+OP-10.08,array_contains(),O10.3
+OP-10.09,size(),O10.3
+OP-10.10,element_at(),O10.3
+OP-10.11,slice(),O10.3
+OP-10.12,flatten(),O10.3
+OP-10.13,collect_list(),O10.6
+OP-10.14,collect_set(),O10.6
+OP-10.15,Nested JSON Processing,O10.7
+OP-10.16,Row Cardinality after explode(),O10.2
+OP-11.01,pivot(),O11.1
+OP-11.02,Pivot with Aggregation,O11.1
+OP-11.03,Controlled Pivot Values,O11.1
+OP-11.04,Dynamic Pivot Concepts,O11.1
+OP-11.05,Unpivot using stack(),O11.2
+OP-11.06,Wide to Long,O11.2
+OP-11.07,Long to Wide,O11.3
+OP-12.01,repartition(),O12.1
+OP-12.02,coalesce(),O12.1
+OP-12.03,repartitionByRange(),O12.1
+OP-12.04,partitionBy(),O12.3
+OP-12.05,Broadcast(),O12.5
+OP-12.06,Broadcast Join,O12.5
+OP-12.07,Shuffle Awareness,O12.4
+OP-12.08,Partition Count Reasoning,O12.2
+OP-12.09,Data Distribution Concepts,O12.4
+OP-13.01,Built-in Spark Functions,O13.1
+OP-13.02,Python UDF,O13.2
+OP-13.03,Pandas UDF,O13.2
+OP-13.04,Built-in Function vs Python UDF,O13.1
+OP-13.05,Serialization Overhead,O13.2
+OP-13.06,Vectorization,O13.2
+OP-13.07,Catalyst Optimization Implications,O13.3
+OP-13.08,Replacing UDFs with Native Spark Functions,O13.1
+OP-14.01,spark.read,O14.4
+OP-14.02,spark.read.format(),O14.4
+OP-14.03,DataFrameReader,O14.4
+OP-14.04,df.write,O14.4
+OP-14.05,DataFrameWriter,O14.4
+OP-14.06,CSV,O14.2
+OP-14.07,JSON,O14.3 O14.6
+OP-14.08,Parquet,O14.4
+OP-14.09,Delta,O14.4
+OP-14.10,Explicit Schema,O14.1
+OP-14.11,inferSchema,O14.1
+OP-14.12,header,O14.2
+OP-14.13,delimiter,O14.2
+OP-14.14,quote,O14.2
+OP-14.15,escape,O14.2
+OP-14.16,multiline,O14.2
+OP-14.17,compression,O14.5
+OP-14.18,append,O14.5
+OP-14.19,overwrite,O14.5
+OP-14.20,ignore,O14.5
+OP-14.21,error/errorifexists,O14.5
+OP-15.01,StructType,O15.1
+OP-15.02,StructField,O15.1
+OP-15.03,Spark Data Types,O15.1
+OP-15.04,Explicit Schema,O15.1
+OP-15.05,schema,O15.3
+OP-15.06,printSchema(),O15.3
+OP-15.07,cast(),O15.2
+OP-15.08,Data Type Conversion,O15.2
+OP-15.09,Nested Schemas,O15.1
+OP-15.10,Schema Validation,O15.3
+OP-15.11,Schema Evolution Concepts,O15.4
+OP-16.01,expr(),O16.1
+OP-16.02,selectExpr(),O16.1
+OP-16.03,spark.sql(),O16.2
+OP-16.04,Temporary Views,O16.2
+OP-16.05,SQL Expressions,O16.1
+OP-16.06,DataFrame API + SQL Interoperability,O16.2
+OP-16.07,SQL Functions inside DataFrame Operations,O16.1
+OP-17.01,union(),O17.1
+OP-17.02,unionByName(),O17.1
+OP-17.03,intersect(),O17.2
+OP-17.04,except(),O17.2
+OP-17.05,Column Ordering,O17.1
+OP-17.06,Schema Compatibility,O17.1
+OP-17.07,allowMissingColumns,O17.1
+OP-18.01,orderBy(),O18.1
+OP-18.02,sort(),O18.1
+OP-18.03,asc(),O18.1
+OP-18.04,desc(),O18.1
+OP-18.05,limit(),O18.1
+OP-18.06,Global Top-N,O18.1
+OP-18.07,Top-N per Group,O18.2
+OP-18.08,Top-N using Window Functions,O18.2
+OP-19.01,Broadcast Variables,O19.1
+OP-19.02,Broadcast Joins,O02.6
+OP-19.03,Accumulators,O19.2
+OP-19.04,toLocalIterator(),O19.3
+OP-19.05,collect(),O19.3
+OP-19.06,take(),O19.3
+OP-19.07,head(),O19.3
+OP-19.08,first(),O19.3
+OP-19.09,foreach(),O19.4
+OP-19.10,foreachPartition(),O19.4
+OP-19.11,mapPartitions(),O19.4
+OP-19.12,map(),O19.4
+OP-19.13,flatMap(),O19.4
+OP-19.14,Driver vs Executor Execution,O19.5
+OP-19.15,Serialization Considerations,O19.5
+OP-19.16,Avoiding Driver Memory Issues,O19.3
+OP-19.17,Understanding When Data Moves to the Driver,O19.3
+OP-20.01,SCD Type 1,O20.1
+OP-20.02,SCD Type 2,O20.2
+OP-20.03,SCD Type 3,O20.1
+OP-20.04,SCD Type 4,O20.3
+OP-20.05,CDC Processing,O20.4
+OP-20.06,Upsert Patterns,O20.5
+OP-20.07,Soft Delete Handling,O20.6
+OP-20.08,Late Arriving Data,O20.7
+OP-20.09,Surrogate Key Generation,O20.8
+OP-20.10,Fact-Dimension Modeling,O20.9
+OP-20.11,Star Schema,O20.9
+OP-20.12,Snowflake Schema,O20.9
+OP-20.13,Data Vault Basics,O20.10
+OP-20.14,Incremental Loading Strategies,O20.11
+OP-20.15,Watermark-Based Processing,O20.11
+OP-20.16,Idempotent Processing,O20.12
+OP-21.01,OPTIMIZE,O21.1
+OP-21.02,Small File Problem,O21.1
+OP-21.03,Auto Compaction,O21.1
+OP-21.04,Optimized Writes,O21.1
+OP-21.05,ZORDER,O21.2
+OP-21.06,Data Skipping,O21.2
+OP-21.07,Partition Pruning,O21.2
+OP-21.08,Statistics Collection,O21.2
+OP-21.09,ANALYZE TABLE,O21.2
+OP-21.10,VACUUM,O21.3
+OP-21.11,Retention Policies,O21.3
+OP-21.12,Time Travel Impact,O21.3
+OP-21.13,File Layout Optimization,O21.4
+OP-22.01,Delta Table Creation,O22.1
+OP-22.02,Delta Table APIs,O22.1
+OP-22.03,Update,O22.2
+OP-22.04,Delete,O22.2
+OP-22.05,Merge Into,O22.2
+OP-22.06,Transaction Log,O22.3
+OP-22.07,ACID Transactions,O22.3
+OP-22.08,Optimistic Concurrency Control,O22.3
+OP-22.09,Schema Enforcement,O22.4
+OP-22.10,Schema Evolution,O22.4
+OP-22.11,Generated Columns,O22.5
+OP-22.12,Constraints,O22.5
+OP-22.13,Identity Columns,O22.5
+OP-22.14,Delta Cloning,O22.6
+OP-23.01,Record Count Validation,O23.1
+OP-23.02,Column Count Validation,O23.1
+OP-23.03,Source Target Reconciliation,O23.1
+OP-23.04,Hash-Based Validation,O23.2
+OP-23.05,Checksum Validation,O23.2
+OP-23.06,Column Level  Custom Data Validation from JSON or table,O23.3
+OP-23.07,Duplicate Detection,O23.4
+OP-23.08,Null Analysis,O23.4
+OP-23.09,Threshold-Based Validation,O23.3
+OP-23.10,Exception Reporting,O23.5
+OP-23.11,Audit Framework Design,O23.5
+OP-23.12,Data Profiling,O23.6
+OP-23.13,Referential Integrity Validation,O23.4
+OP-23.14,Exploratory Data Analysis,O23.6

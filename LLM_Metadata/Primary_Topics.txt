@@ -1,374 +1,190 @@
-Core Objective:
+Primary Topics (streamlined 2026-11-21)
+==========================================
+Each item is a skill to demonstrate in code, not a function to memorize. The function names in brackets
+show the scope; the exercise prompts list the functions you may need. Importance tags are unchanged
+from the original list (archive: archive\2026-11-21_before_streamlining\Primary_Topics.txt).
+IDs: C = core objective (treated as High), O<section>.<item> = operation skill.
 
-a. Conditional Data Manipulation
-b. Addition of new fields like a primary key, filename metadata, insertion date time, surrogate key
-c. Date and TimeStamp Manipulation 
-d. Deduplication, Sorting & Selective Dropping
-e. Accumulator(Counters, Sums, Debugging metrics) & Broadcast Variable
-f. Advanced Window Functions
-g. Window Functions with Aggregation
-h. Working with foreachPartition, mapPartitions, LocalIterator
-i. Working with transform, map, array, create_map, to_json
-j. Operations on Complex Data Types (Arrays/Structs)
-k. EDA & Statistical Profiling
-l. Dirty Data Handling
-m. Duplicate Detection & Deduplication 
-n. Cardinality & Categorical Profiling
-o. Correlation & Relationship Analysis 
-p. Partitioning Strategy
-q. Join Optimization Strategies
-r. Joins with and without simple Salting Technique
-s. Skew Handling Strategies
-t. Pivot Tables (Cross-Tabulation)
-u. Year-Over-Year (YoY) Analysis and Month-Over-Month (MoM) Analysis
-v. Gap/Anti-Join Analysis
+Core Objectives (Importance: High)
+  C01 Conditional data manipulation
+  C02 Adding fields: primary / surrogate keys, file-name metadata, ingestion timestamps
+  C03 Date and timestamp manipulation (parsing, time zones, arithmetic)
+  C04 Deduplication and duplicate detection, incl. sorting and selective dropping
+  C05 Accumulators (counters, sums, debugging metrics) and broadcast variables
+  C06 Advanced window functions, incl. window + aggregation
+  C07 Partition-level processing: foreachPartition, mapPartitions, toLocalIterator
+  C08 Complex types: arrays, structs, maps, JSON (transform, map, array, create_map, to_json)
+  C09 EDA, statistical profiling, cardinality and categorical profiling
+  C10 Dirty data handling
+  C11 Correlation and relationship analysis
+  C12 Partitioning strategy
+  C13 Join optimization strategies
+  C14 Skew handling, incl. joins with and without simple salting
+  C15 Pivot tables (cross-tabulation)
+  C16 Year-over-year (YoY) and month-over-month (MoM) analysis
+  C17 Gap / anti-join analysis
 
 
-Operations:
+Operations
+==========
 
-1. DataFrame Manipulation - Importance: Low
-   - select()
-   - selectExpr()
-   - withColumn()
-   - withColumns()
-   - withColumnRenamed()
-   - drop()
-   - alias()
-   - filter()
-   - where()
-   - distinct()
-   - dropDuplicates()
+1. DataFrame Basics - Importance: Low
+  O01.1 Projecting columns [select, selectExpr, alias, drop]
+  O01.2 Deriving and renaming columns [withColumn, withColumns, withColumnRenamed]
+  O01.3 Filtering rows [filter / where]
+  O01.4 distinct vs dropDuplicates(subset)
 
 2. Joins - Importance: High
-   - Inner Join
-   - Left Join
-   - Right Join
-   - Full Outer Join
-   - Left Semi Join
-   - Left Anti Join
-   - Cross Join
-   - Multi-column Joins
-   - Join with Expressions
-   - Null Handling in Joins
-   - Duplicate Join Keys / Join Cardinality
-   - Broadcast Join
-   - Join Hints
-   - Skewed Join Concepts
+  O02.1 Choosing the join type [inner, left, right, full outer, cross]
+  O02.2 Semi and anti joins (existence and gap checks)
+  O02.3 Multi-column, expression and range joins (incl. point-in-time / as-of)
+  O02.4 Null keys in joins and null-safe equality [<=>, eqNullSafe]
+  O02.5 Join cardinality and fan-out (duplicate keys)
+  O02.6 Broadcast joins and join hints
+  O02.7 Skewed joins (detect, then mitigate)
 
 3. Aggregations & Grouping - Importance: Medium
-   - groupBy()
-   - agg()
-   - sum()
-   - count()
-   - countDistinct()
-   - avg()
-   - min()
-   - max()
-   - collect_list()
-   - collect_set()
-   - Conditional Aggregation
-   - Multiple Aggregations
-   - Aggregation + Join
-   - Aggregation + Window
+  O03.1 groupBy / agg with multiple aggregates [sum, count, avg, min, max]
+  O03.2 Distinct counting [countDistinct vs approx_count_distinct]
+  O03.3 Collecting values [collect_list vs collect_set: order and dedup semantics]
+  O03.4 Conditional aggregation [sum(when ...), count_if, filter]
+  O03.5 Aggregation + join (aggregate before or after the join; grain)
+  O03.6 Aggregation + window (aggregates over a window)
 
 4. Window Functions - Importance: Very High
-   - Window.partitionBy()
-   - Window.orderBy()
-   - rowsBetween()
-   - rangeBetween()
-   - lag()
-   - lead()
-   - first()
-   - last()
-   - Running Aggregations
-   - Cumulative Calculations
-   - Rolling Calculations
-   - Previous/Next Record Comparisons
-   - Window + Conditional Logic
-   - Multiple Window Specifications
-   - Row Frame vs Range Frame
-   - Sessionization
-   - Gap Detection
-   - Event Sequence Analysis
-   - Deduplication using Windows
-   - Latest Record Selection
+  O04.1 Window specs: partitionBy / orderBy
+  O04.2 Ranking and tie semantics [row_number, rank, dense_rank]
+  O04.3 Previous / next record comparison [lag, lead]
+  O04.4 first / last (incl. ignoreNulls)
+  O04.5 Frames: rowsBetween vs rangeBetween, and the default-frame gotcha
+  O04.6 Running, cumulative and rolling calculations
+  O04.7 Sessionization and gap detection
+  O04.8 Event sequence analysis
+  O04.9 Window + conditional logic; several window specs in one query
+  O04.10 Latest-record selection and deduplication with windows
 
 5. Deduplication - Importance: Medium
-   - distinct()
-   - dropDuplicates()
-   - Deduplication using Window Functions
-   - Latest Record per Key
-   - Earliest Record per Key
-   - Deduplication using Timestamp
-   - Deduplication Before/After Join
-   - row_number() for Deduplication
+  O05.1 Exact vs key-based dedup [distinct, dropDuplicates]
+  O05.2 Latest / earliest record per key, by timestamp [window, max_by / min_by]
+  O05.3 Deterministic tie-breaking
+  O05.4 Dedup before vs after a join
 
 6. Conditional Logic - Importance: High
-   - when()
-   - otherwise()
-   - Nested when()
-   - Conditional Aggregation
-   - Conditional Logic with Windows
-   - Conditional Logic with Joins
-   - Conditional Logic with Date/Time
-   - Conditional Logic with Nulls
-   - coalesce()
+  O06.1 when / otherwise chains (first-match semantics, nesting)
+  O06.2 Conditional logic with nulls [coalesce, null-safe tests]
+  O06.3 Conditional logic inside aggregations, windows, joins and date logic
 
 7. Null Handling - Importance: Medium
-   - isNull()
-   - isNotNull()
-   - isnan()
-   - coalesce()
-   - fillna()
-   - dropna()
-   - na.fill()
-   - na.drop()
-   - Nulls in Joins
-   - Nulls in Aggregations
-   - Nulls in Window Functions
-   - Null vs NaN
+  O07.1 Null tests and three-valued logic [isNull, isNotNull, comparisons with null]
+  O07.2 Null vs NaN [isnan]
+  O07.3 Filling and dropping [fillna / na.fill, dropna / na.drop, coalesce]
+  O07.4 Nulls in joins, aggregations, windows and sorting
 
-8. Date & Time Manipulation - Importance: Medium
-   - current_date()
-   - current_timestamp()
-   - to_date()
-   - to_timestamp()
-   - date_format()
-   - year()
-   - month()
-   - day()
-   - dayofweek()
-   - dayofmonth()
-   - weekofyear()
-   - hour()
-   - minute()
-   - second()
-   - datediff()
-   - months_between()
-   - add_months()
-   - date_add()
-   - date_sub()
-   - unix_timestamp()
-   - from_unixtime()
-   - Epoch to Timestamp
-   - Timestamp to Epoch
-   - Timestamp Arithmetic
-   - Timezone Concepts
+8. Date & Time - Importance: Medium
+  O08.1 Parsing strings to date / timestamp, incl. multiple formats [to_date, to_timestamp, try_to_timestamp]
+  O08.2 Formatting and extracting parts [date_format, year, month, dayofweek, hour ...]
+  O08.3 Date and timestamp arithmetic and differences [date_add, add_months, datediff, months_between, intervals]
+  O08.4 Epoch conversions [unix_timestamp, from_unixtime, timestamp_millis]
+  O08.5 Time zones (session time zone vs stored UTC instant) [from_utc_timestamp, to_utc_timestamp]
+  O08.6 Truncating and bucketing time for period analysis [date_trunc, trunc]
 
-9. String Operations - Importance: low
-   - lower()
-   - upper()
-   - trim()
-   - ltrim()
-   - rtrim()
-   - length()
-   - substring()
-   - regexp_replace()
-   - regexp_extract()
-   - split()
-   - concat()
-   - concat_ws()
-   - replace()
-   - like
-   - contains()
-   - startswith()
-   - endswith()
-   - String Cleaning
-   - String Parsing
+9. String Operations - Importance: Low
+  O09.1 Cleaning and normalizing [trim, lower / upper, regexp_replace, replace]
+  O09.2 Parsing and extracting [substring, split, regexp_extract, length]
+  O09.3 Building strings [concat, concat_ws]
+  O09.4 Pattern matching [like, rlike, contains, startswith, endswith]
 
-10. Array / Struct / Nested Data - Importance: Medium
-    - explode()
-    - posexplode()
-    - Array Columns
-    - Struct Columns
-    - Nested Column Access
-    - Arrays of Structs
-    - Structs Containing Arrays
-    - array_contains()
-    - size()
-    - element_at()
-    - slice()
-    - flatten()
-    - collect_list()
-    - collect_set()
-    - Nested JSON Processing
-    - Row Cardinality after explode()
+10. Arrays / Structs / Nested Data - Importance: Medium
+  O10.1 Struct and nested field access [dot paths, select("s.*")]
+  O10.2 Exploding and row cardinality [explode, explode_outer, posexplode]
+  O10.3 Array functions [size, array_contains, element_at, slice, flatten, array_distinct]
+  O10.4 Higher-order functions [transform, filter, exists, aggregate]
+  O10.5 Maps [create_map, map_keys, map_values, exploding a map]
+  O10.6 Re-aggregating into arrays [collect_list, collect_set]
+  O10.7 JSON strings [from_json, to_json, schema_of_json]
 
 11. Pivot / Unpivot - Importance: High
-    - pivot()
-    - Pivot with Aggregation
-    - Controlled Pivot Values
-    - Dynamic Pivot Concepts
-    - Unpivot using stack()
-    - Wide to Long
-    - Long to Wide
+  O11.1 pivot with aggregation (controlled values vs dynamic discovery, and its cost)
+  O11.2 Unpivot, wide to long [stack, unpivot]
+  O11.3 Long-to-wide reports and cross-tabs
 
 12. Partition-Aware Operations - Importance: High
-    - repartition()
-    - coalesce()
-    - repartitionByRange()
-    - partitionBy()
-    - Broadcast()
-    - Broadcast Join
-    - Shuffle Awareness
-    - Partition Count Reasoning
-    - Data Distribution Concepts
+  O12.1 repartition vs coalesce (by count, by column, by range)
+  O12.2 Partition count reasoning (input, shuffle and output partitions)
+  O12.3 Output layout with partitionBy (file counts, pruning)
+  O12.4 Shuffle awareness and data distribution
+  O12.5 Avoiding shuffles [broadcast, pre-partitioned data]
 
 13. UDF & Function Selection - Importance: Medium
-    - Built-in Spark Functions
-    - Python UDF
-    - Pandas UDF
-    - Built-in Function vs Python UDF
-    - Serialization Overhead
-    - Vectorization
-    - Catalyst Optimization Implications
-    - Replacing UDFs with Native Spark Functions
+  O13.1 Built-ins first: replacing UDFs with native or higher-order functions
+  O13.2 Python UDF vs Pandas (vectorized) UDF: serialization, Arrow
+  O13.3 What a UDF costs: Catalyst and codegen implications
 
 14. Reading & Writing Data - Importance: Medium
-    - spark.read
-    - spark.read.format()
-    - DataFrameReader
-    - df.write
-    - DataFrameWriter
-    - CSV
-    - JSON
-    - Parquet
-    - Delta
-    - Explicit Schema
-    - inferSchema
-    - header
-    - delimiter
-    - quote
-    - escape
-    - multiline
-    - compression
-    - append
-    - overwrite
-    - ignore
-    - error/errorifexists
+  O14.1 Explicit schema vs inferSchema
+  O14.2 CSV options [header, delimiter, quote, escape, multiLine, mode]
+  O14.3 JSON options and corrupt records [multiLine, columnNameOfCorruptRecord, PERMISSIVE / DROPMALFORMED / FAILFAST]
+  O14.4 Parquet and Delta read / write
+  O14.5 Save modes and compression [append, overwrite, ignore, errorifexists]
+  O14.6 File selection and lineage [globs, basePath, recursiveFileLookup, _metadata.file_path]
 
 15. Schema Operations - Importance: Medium
-    - StructType
-    - StructField
-    - Spark Data Types
-    - Explicit Schema
-    - schema
-    - printSchema()
-    - cast()
-    - Data Type Conversion
-    - Nested Schemas
-    - Schema Validation
-    - Schema Evolution Concepts
+  O15.1 Defining schemas, incl. nested types [StructType / StructField, DDL strings]
+  O15.2 Casting and type conversion [cast vs try_cast, ANSI mode]
+  O15.3 Inspecting and validating schemas [schema, printSchema, comparing with the expected schema]
+  O15.4 Schema evolution concepts (added, renamed and type-drifted columns)
 
-16. Spark SQL & Expression Operations - Importance: Low
-    - expr()
-    - selectExpr()
-    - spark.sql()
-    - Temporary Views
-    - SQL Expressions
-    - DataFrame API + SQL Interoperability
-    - SQL Functions inside DataFrame Operations
+16. Spark SQL & Expressions - Importance: Low
+  O16.1 SQL expressions inside DataFrame code [expr, selectExpr]
+  O16.2 spark.sql with temporary views (DataFrame <-> SQL interop)
 
 17. Set & Union Operations - Importance: Medium
-    - union()
-    - unionByName()
-    - intersect()
-    - except()
-    - Column Ordering
-    - Schema Compatibility
-    - allowMissingColumns
+  O17.1 union vs unionByName (column order, allowMissingColumns, schema compatibility)
+  O17.2 intersect / except / exceptAll (duplicate semantics)
 
-18. Sorting & Top-N Operations - Importance: Low
-    - orderBy()
-    - sort()
-    - asc()
-    - desc()
-    - limit()
-    - Global Top-N
-    - Top-N per Group
-    - Top-N using Window Functions
+18. Sorting & Top-N - Importance: Low
+  O18.1 Global ordering and limits [orderBy / sort, asc / desc, nulls first / last, limit]
+  O18.2 Top-N per group (window-based)
 
 19. Ad-hoc / Advanced Spark Operations - Importance: High
-
-   - Broadcast Variables
-   - Broadcast Joins
-   - Accumulators
-   - toLocalIterator()
-   - collect()
-   - take()
-   - head()
-   - first()
-   - foreach()
-   - foreachPartition()
-   - mapPartitions()
-   - map()
-   - flatMap()
-   - Driver vs Executor Execution
-   - Serialization Considerations
-   - Avoiding Driver Memory Issues
-   - Understanding When Data Moves to the Driver
+  O19.1 Broadcast variables
+  O19.2 Accumulators (and the task-retry double-count gotcha)
+  O19.3 Actions that move data to the driver, and avoiding driver OOM [collect, take, head, first, toLocalIterator]
+  O19.4 Partition-level vs row-level processing [foreachPartition, mapPartitions vs foreach, map, flatMap]
+  O19.5 Driver vs executor execution and serialization (closures)
 
 20. Data Modeling, CDC & Data Warehouse Patterns - Importance: Very High
-   - SCD Type 1
-   - SCD Type 2
-   - SCD Type 3
-   - SCD Type 4
-   - CDC Processing
-   - Upsert Patterns
-   - Soft Delete Handling
-   - Late Arriving Data
-   - Surrogate Key Generation
-   - Fact-Dimension Modeling
-   - Star Schema
-   - Snowflake Schema
-   - Data Vault Basics
-   - Incremental Loading Strategies
-   - Watermark-Based Processing
-   - Idempotent Processing
+  O20.1 SCD Type 1 and Type 3 (overwrite; previous-value columns)
+  O20.2 SCD Type 2 (history with validity intervals)
+  O20.3 SCD Type 4 (current table + history table)
+  O20.4 CDC processing (ordered change events, deletes)
+  O20.5 Upsert patterns [MERGE]
+  O20.6 Soft vs hard delete handling
+  O20.7 Late-arriving data (facts and dimensions)
+  O20.8 Surrogate key generation
+  O20.9 Fact-dimension modeling: star vs snowflake schema
+  O20.10 Data Vault basics (hubs, links, satellites)
+  O20.11 Incremental and watermark-based loading
+  O20.12 Idempotent processing (reruns, replays)
 
 21. Delta Lake Optimization & Maintenance - Importance: High
-   - OPTIMIZE
-   - Small File Problem
-   - Auto Compaction
-   - Optimized Writes
-   - ZORDER
-   - Data Skipping
-   - Partition Pruning
-   - Statistics Collection
-   - ANALYZE TABLE
-   - VACUUM
-   - Retention Policies
-   - Time Travel Impact
-   - File Layout Optimization
+  O21.1 Small-file problem and compaction [OPTIMIZE, optimized writes, auto compaction]
+  O21.2 Data skipping [statistics, ANALYZE TABLE, ZORDER / clustering, partition pruning]
+  O21.3 VACUUM, retention and time-travel impact
+  O21.4 File layout design (partition choice, file sizing)
 
 22. Delta Lake Transaction Management - Importance: High
-   - Delta Table Creation
-   - Delta Table APIs
-   - Update
-   - Delete
-   - Merge Into
-   - Transaction Log
-   - ACID Transactions
-   - Optimistic Concurrency Control
-   - Schema Enforcement
-   - Schema Evolution
-   - Generated Columns
-   - Constraints
-   - Identity Columns
-   - Delta Cloning
+  O22.1 Creating Delta tables (path vs catalog, managed vs external) and the DeltaTable API
+  O22.2 UPDATE, DELETE and MERGE INTO
+  O22.3 Transaction log, ACID and optimistic concurrency
+  O22.4 Schema enforcement vs evolution [mergeSchema, overwriteSchema]
+  O22.5 Generated columns, identity columns and constraints
+  O22.6 Time travel and cloning
 
 23. Data Reconciliation & Data Quality - Importance: High
-   - Record Count Validation
-   - Column Count Validation
-   - Source Target Reconciliation
-   - Hash-Based Validation
-   - Checksum Validation
-   - Column Level  Custom Data Validation from JSON or table
-   - Duplicate Detection
-   - Null Analysis
-   - Threshold-Based Validation
-   - Exception Reporting
-   - Audit Framework Design
-   - Data Profiling
-   - Referential Integrity Validation
-   - Exploratory Data Analysis
+  O23.1 Count and column reconciliation (source vs target; input = valid + rejects)
+  O23.2 Hash / checksum validation (row hashes, table fingerprints)
+  O23.3 Rule-based validation from config (JSON or table-driven rules, thresholds)
+  O23.4 Duplicate, null and referential-integrity checks
+  O23.5 Exception / quarantine reporting and audit design
+  O23.6 Data profiling and exploratory data analysis
