@@ -5,7 +5,7 @@
 Use this guide to coach a candidate with 8–10 years of experience through hands-on PySpark exercises on deterministic synthetic data.
 
 - **Primary Objective:** Build confidence for a hands-on PySpark Databricks interview.
-- **Secondary Objective (revised 2026-10-11 at the user's request):** Become proficient in hands-on coding for every topic in `Primary_Topics.txt`, and learn to read the Spark UI the way production engineers do.
+- **Secondary Objective:** Practice concise PySpark coding steps, reason about architecture and data correctness, and use Spark UI evidence to understand execution. Look up syntax as needed; no memorization or scoring programme.
 
 This practice is standalone and completely separate from the SupportIQ and IncidentIQ projects. The support-desk dataset is practice material only. Do not frame exercises as project modules, and do not prepare project claims.
 
@@ -24,7 +24,7 @@ Root: `D:\Project_AI\PySpark_Hands_On`
 | `Output\` | Exercise outputs; use `Output\focused\<exercise>` |
 | `Questions\` | Issued prompts (`Q1.txt`, `Q2.txt`, ...) |
 | `User_Responses\` | Candidate notebooks (`Response_<n>.ipynb`) |
-| `LLM_Metadata\` | This guide, `SESSION_NOTES.md`, `Primary_Topics.txt`, `Spark_UI_Topics.txt`, `TOPIC_COVERAGE.csv`, `SPARK_UI_COVERAGE.csv`, `KNOWLEDGE_CHECKS.csv` (check log), `archive\` (superseded lists and trackers) |
+| `LLM_Metadata\` | Active guide, `LEARNING_PLAN.md`, focused `SESSION_NOTES.md`, topic menus and an inactive reference archive |
 
 ## Dataset
 
@@ -171,236 +171,70 @@ Other facts:
 - Call-centre times are local IST, and one re-export uses `MM/dd/yyyy`.
 - Customer and product frequencies are skewed (Zipf-like).
 
-## Curriculum and scheduling
+## Practice-first teaching
 
-`Primary_Topics.txt` is the curriculum authority. Its `Importance` tags drive selection. It was streamlined on 2026-11-21 from 322 function-level entries to **132 skills** (17 core objectives `C01`–`C17`, 115 operation skills `O<section>.<item>`), because a candidate is not expected to memorize every function in the AI-coding era. The functions in brackets give the scope only. The old list, old trackers and `TOPIC_ID_MAPPING.csv` (old ID → new IDs) are in `LLM_Metadata\archive\2026-11-21_before_streamlining\`. `Spark_UI_Topics.txt` is chained to every exercise through Parts B–D of the prompt (see "Interaction protocol"). Never skip a topic because no project uses it.
+The goal is hands-on PySpark fluency and the judgment of a data architect. Use
+[LEARNING_PLAN.md](LEARNING_PLAN.md), [Primary_Topics.txt](Primary_Topics.txt) and
+[Spark_UI_Topics.txt](Spark_UI_Topics.txt) for the active learning path.
+The curriculum is a menu of practical goals, not an exam checklist. No scores, pass targets, scheduled quizzes,
+accuracy tracking or fixed repetition counts. Archived assessment instructions are inactive.
 
-### Tiers and pass targets
+### Interaction contract
 
-| Tier | Sections (current tags) | Target demonstrated passes |
-|---|---|---|
-| Very High | 4 Window Functions; 20 Data Modeling, CDC & DW Patterns | 5 |
-| High | 2 Joins; 6 Conditional Logic; 11 Pivot/Unpivot; 12 Partition-Aware; 19 Ad-hoc/Advanced; 21 Delta Optimization; 22 Delta Transactions; 23 Reconciliation & DQ; **all Core Objectives C01–C17** (treated as High) | 4 |
-| Medium | 3, 5, 7, 8, 10, 13, 14, 15, 17 | 3 |
-| Low | 1 DataFrame Basics; 9 String Operations; 16 Spark SQL & Expressions; 18 Sorting & Top-N | 3 |
+- State a brief agenda and give one small sub-problem whose answer normally needs 1–2 meaningful lines/statements
+  of PySpark. Split longer work; do not code-golf. Supply setup/imports/schemas separately when needed.
+- Specify the required result and available variables, not the solution recipe. Let the learner implement it.
+- Review each snippet briefly; ask a focused counter-question when a material issue remains. Iterate freely,
+  without a formal single-submission rule or a long design essay.
+- "Skip", "do this one", "too easy" or "not engaging" authorizes the LLM to supply this step, explain its effect
+  briefly, and keep the pipeline runnable. There is no penalty or mandatory follow-up question.
+- Do not supply future steps' solutions or hints unless requested. A request to delegate the current step is not
+  authorization to solve the entire exercise. Confirm execution before relying on supplied code's results.
+- Occasionally ask one short architect-level decision question about grain, temporal meaning, quality, replays,
+  consumer guarantees or cost. Keep it tied to the implementation; no quizzes appended to every reply.
+- For a changed/unfamiliar case, ask for a brief prediction and test it through code/evidence. Exact API spelling,
+  configuration defaults and exhaustive function catalogues are lookup material.
 
-`TOPIC_COVERAGE.csv` holds one row per skill: `Importance`, `Target_Passes`, `Old_IDs` (traceability) and `Pass_1`…`Pass_5_Evidence`. Migrated passes are grouped by exercise: one pass per exercise in which any of the skill's old sub-topics passed. When the user edits an importance tag in `Primary_Topics.txt`, re-sync both columns.
+### UI checkpoints are part of the task
 
-### Composing each exercise
+Before moving on from a relevant action, cache, shuffle, write or setting change, explicitly notify the learner
+that there is a UI observation to make. Plan the checkpoint before the action when needed, inspect after it,
+and preserve evidence before restarting, unpersisting or overwriting. This applies even when the LLM completed
+an easy step. Skipping code does not waive a UI checkpoint; wait for the observation or an explicit request to skip UI.
 
-Cover several topics in one exercise whenever the business requirement makes it natural. Every exercise must contain:
+Give one navigation move or one observation at a time: name the tab, identify the action by description/time/path,
+and ask for one meaningful metric. Do not assume fixed execution IDs, job counts, tasks, file counts or timing.
+File discovery/schema inference may create preparatory jobs before a DataFrame action; lazy row execution is
+not a promise that the Jobs tab stays empty. Follow actual plans and link operators to the scheduler stage.
+If nothing informative changed, say no UI inspection is needed rather than forcing a full tour.
 
-1. **Primary targets.** One or two topics from the Very High or High tier, chosen from the topics furthest from their target, with Very High first. Ties go to the topic practiced least recently.
-2. **Supporting topics.** Medium topics that the requirement naturally needs. Prefer uncovered ones.
-3. **Secondary objectives.** At least two Low-tier topics woven into the requirement in every exercise (for example a rename, a `selectExpr`, a string cleanup, a Top-N or a temp-view query). Prefer Low topics with the fewest passes. Do not label them as "secondary" in the prompt; make them part of the requirement.
+### Exercise construction and validation
 
-### Cadence
+A prompt has a clear business contract, input paths/file selection, required schema, output grain/path/schema,
+and measurable correctness checks. Then present only the next small coding task or UI observation during coaching.
+Keep hidden dataset cases and reference answers private; do not give expected counts or a full solution in advance.
+The task roadmap may be saved in the prompt for orientation, but do not send it as a batch of questions.
 
-- **Very High:** a Very High section appears as a primary or supporting target in at least every second exercise.
-- **High:** after its first pass, every High section and Core Objective is revisited at least once in every eight exercises.
-- **After reaching the target:** Very High and High topics keep coming back as supporting topics (spaced practice). Medium and Low topics then appear only when natural.
-- **Variety:** vary the business context, data source (helpdesk JSON, nested arrays, call-centre CSV with JSON text, CRM snapshots), scale (small vs medium profile) or technical constraint on every revisit, so each pass shows transfer, not repetition.
-- **Format:** keep each exercise to one bounded sitting, with no one-operation limit. Use compact, business-led requirements only.
+Default to Windows local Spark/Delta; check runtime support for platform-specific features. Supply explicit setup
+and stable variable names. Preserve the learner's existing notebook work, input data and Delta versions.
+A fresh kernel does not mean deleting a table. Record actual Delta version numbers and count snapshot-active files.
+The cloud checkout is separate from the learner's Windows process; code supplied, executed and verified are distinct.
 
-### Module map (topic clusters and their natural Spark UI chain)
+Validate the business result with an independent key or meaningful invariants before calling it correct. Prefer
+bounded inputs and duplicate-aware comparisons. A performance improvement must preserve the result. Do not disable
+checks or treat a delegated/unrun step as validated. No need for an artificial failure in every exercise.
 
-| Cluster | Primary topics | Natural Spark UI chain |
-|---|---|---|
-| Read, profile, normalize | explicit schemas; CSV/JSON/Parquet/Delta; inferSchema; schema validation and evolution; null/NaN; dirty data; EDA, cardinality, categorical profiling; metadata columns and surrogate keys | lazy evaluation, schema-inference cost, predicate and column pruning, input partitions |
-| Columns and complex types | select/selectExpr/withColumn(s)/rename/drop/alias/filter/where; conditionals; strings and dates; arrays, structs, maps, nested JSON; `transform`, `create_map`, `to_json`, `explode` and cardinality | narrow transformations, Catalyst, codegen, built-in vs UDF |
-| Quality, keys, dedup, CDC | distinct/dropDuplicates; window winner; latest/earliest; SCD 1–4; CDC, upsert, late data, soft deletes; reconciliation, checksums, audit | shuffle from dedup, window and merge; Exchange; skew and spill; Delta log |
-| Joins and relationships | all join types; multi-key, expression and null joins; fan-out; aggregation + join; referential integrity; gap and anti-joins | broadcast vs sort-merge vs hash; thresholds and hints; AQE; dynamic partition pruning; salting |
-| Windows and time analytics | frames; lag/lead/first/last; running and rolling; sessionization, gaps, sequences; YoY/MoM; Top-N | window exchange and sort, stage boundaries, task skew, shuffle partitions |
-| Aggregation and reshape | conditional and multiple aggregations; collect_list/set; pivot and unpivot; statistics and correlation | wide transformations, exchange, spill, whole-stage codegen |
-| Partitioning and scale | repartition/coalesce/range/partitionBy; file layout; join optimization; skew and salting | input vs shuffle vs output partitions, AQE, executor sizing, memory |
-| Execution APIs and memory | accumulators and broadcast variables; foreachPartition/mapPartitions/map/flatMap/toLocalIterator/collect; driver vs executor; UDF vs Pandas UDF | job boundaries, serialization, driver OOM lab, GC, spill |
-| Data modelling and CDC | SCD 1/2/3/4, CDC processing, upserts, soft deletes, late-arriving data, surrogate keys, fact/dimension, star vs snowflake, Data Vault, incremental and watermark loads, idempotency | MERGE scan and rewrite metrics, shuffle from window-based ordering, Delta transaction log, file counts |
-| Delta delivery | create/read/write, append/overwrite/merge/update/delete, idempotency, schema enforcement and evolution, OPTIMIZE/ZORDER/stats/data skipping/partition pruning, VACUUM, time travel, clone | file counts and scan metrics before and after, transaction log |
+For a focused comparison, keep input/business logic and cache conditions consistent, change one execution setting,
+inspect evidence, and state the trade-off briefly. Runtime SQL settings differ from process startup settings:
+changing driver memory reliably requires a new process/kernel, not just spark.stop() and a new builder.
+Optional memory/failure labs need bounded data, an isolated capped process and a clear restore path.
 
-## Interaction protocol (revised 2026-10-21)
+At a natural stopping point, update SESSION_NOTES.md with only the current task, actual design decisions, unresolved
+questions and pending UI checkpoint. Keep old records in the archive; do not resume historical quizzes or maintain
+scores. For reusable validated output, update Input/intermediate/<output>.md and the Input index with actual schema,
+grain, rows, producing exercise and Delta version. Preserve original candidate cells if adding review notes.
 
-Each exercise takes three turns:
+## Current exercise
 
-| Turn | Who | Content |
-|---|---|---|
-| **Interaction 1** | Interviewer | One prompt (`Questions\Q<n>.txt`) with four parts. **A:** the question plus a brief function overview. **B:** the Spark config change that triggers a performance or error scenario. **C:** the exact UI locations to observe and report. **D:** an explanation of the bottleneck or error and how to fix it. |
-| **Interaction 2** | Candidate | The code (notebook with saved outputs and counts) and the Part C report: metrics from the "before" run (scenario triggered) and the "after" run (fix applied). |
-| **Interaction 3** | Interviewer | A single-round review: run-validated, annotated in the notebook, design questions answered, Part C metrics explained (see "Evaluation, correction and tracking"). |
-
-### Part A: the question and the function overview
-
-Every prompt states:
-- the exact environment
-- the input path and file selection
-- the complete schema and data types needed
-- the business rules
-- measurable acceptance criteria
-- the output artifact, path and schema
-- the expected submission
-
-When an output is both a table and a path, give the SQL-safe table identifier and the filesystem path separately.
-
-Default to Windows local Spark. Use Databricks only for genuinely Databricks-only features (Unity Catalog, Auto Loader, Delta Live Tables, Workflows, platform governance).
-
-Keep prompts free of planted edge cases, scenario IDs, hints and solution recipes. State ordinary business rules and required outcomes, and do not name the function that solves a requirement unless the exercise specifically tests that API. Save each prompt as `Questions\Q<n>.txt`.
-
-Assess interview-relevant skills such as `_source_file`, `_record_no`, `_file_id`, recursive file discovery, explicit schemas and corrupt-record handling. Never require parsing arbitrary filename tokens or remembering arbitrary constants. Supply derived metadata as an input instead.
-
-Ask for code only: a notebook with saved outputs in `User_Responses\Response_<n>.ipynb`, plus the required counts. Do not ask the candidate for a written design explanation (see "Design questions" below). Never give a full solution before the attempt.
-
-**Carry-forward rule.** The design questions answered in the review of exercise *n* become **coding requirements** in exercise *n+1*. For example, "how is the winner deterministic?" becomes "prove determinism by rerunning and comparing the outputs". Fold them into the next prompt's business requirements and acceptance criteria. Never present them as quiz questions.
-
-**Function overview (part of every Part A).** List the functions and options the candidate *may or may not* need, with a one-line description each: what it does, its key argument, and its main gotcha (for example ANSI-mode `cast` errors in Spark 4, null handling, session-time-zone rendering, determinism).
-- Where there are several reasonable ways to reach a goal, list them briefly, with one trade-off each, and let the candidate choose. Do not say which is best before the attempt.
-- The overview must not reveal the planted edge cases or the full solution. It describes tools, not the recipe.
-- When a review's corrected code uses non-obvious constructs (for example regular expressions or `expr` SQL), explain them token by token in the notebook.
-
-### Part B: the Spark config that triggers a scenario
-
-`Spark_UI_Topics.txt` is about performance monitoring and failure diagnosis, so the candidate must first **experience** the bottleneck or error, then fix it. Every prompt therefore gives explicit config instructions for a "run 1" that triggers the scenario, chosen to match the Part C focus. Examples:
-- disable AQE: `spark.sql.adaptive.enabled=false`
-- keep or raise `spark.sql.shuffle.partitions`
-- disable broadcast: `spark.sql.autoBroadcastJoinThreshold=-1`, or force broadcast with a hint
-- fewer cores: `local[1]` / `local[2]`
-- lower `spark.driver.memory` / `spark.executor.memory`, or `spark.memory.fraction`
-- caching on or off
-- a skewed key, or `repartition(n)` extremes
-
-For each change, state whether it is a **runtime** setting (`spark.conf.set`, no restart) or a **startup** setting: master, driver or executor memory, which need `spark.stop()` and a new session.
-
-"Run 2" applies a fix from Part D, and the candidate reports both runs.
-
-Safety: failure and OOM scenarios use a bounded workload, an isolated or fresh session, heap caps such as `512m`–`1g` (never larger inputs without bound), and outputs under `Output\`. State how to restore the normal session afterwards.
-
-### Part C: what to observe and report
-
-Name the exact UI locations:
-- the tab
-- how to find the query or stage (by its action or description)
-- the node, metric or percentile to read
-
-Ask for a prediction first. Ask for the same two to six metrics for run 1 and run 2, plus any non-UI evidence such as Delta file counts or the error message and stack-trace line. Never ask for a full walk-through.
-
-Choose the focus from `Spark_UI_Topics.txt`: the least-covered section that the exercise genuinely exercises, following the progression and depth levels in "Spark UI coverage" below.
-
-### Part D: what happens and how to fix it
-
-Explain the bottleneck or error the candidate is about to see:
-- the physical cause (shuffle partitions, task overhead, spill, OOM, broadcast size, skew, small files)
-- the expected symptoms in the UI
-- interviewer-measured numbers from a scratchpad run of the same scenario, when available
-- two to four fixes, with trade-offs
-
-The candidate picks one for run 2. Verify the scenario by running it in the scratchpad before issuing the prompt, so the symptoms described are real.
-
-### Evaluation, correction and tracking (single round; protocol revised 2026-10-16)
-
-- **One submission per exercise.** If the code is wrong or incomplete, do **not** return it for rework. The review closes the exercise.
-- **Validate by running.** Check the submission against an independent answer key computed from `Input`, which covers the hidden edge cases. Wherever possible, read the candidate's actual outputs with local Spark (`C:\Spark\spark-4.0.1-bin-hadoop3`, Delta jars in the Ivy cache) and run the corrected code in the scratchpad before presenting it.
-- **Annotate the candidate's notebook in place.** Leave the candidate's cells untouched.
-  - **Mistake notes.** After each faulty cell, insert a markdown cell tagged `interviewer-review`, headed `❌ M<k> (cell above): <title>`. State what is wrong, the measured impact (counts and an example key) and the correct approach.
-  - **Review summary.** Add one markdown cell with a table of expected vs candidate vs corrected results, and a list of what was done correctly.
-  - **Corrected solution.** Add a `✅ Corrected solution (validated)` section of code cells tagged `interviewer-fix`. They must run in a fresh kernel after the session cell, and must not depend on earlier kernel state. Follow them with the validated run output.
-  - **Design questions.** Add a markdown cell where the interviewer **asks and answers** the design questions for the exercise: why this approach, alternatives, determinism, time zones, performance and Spark internals. It ends with the carry-forward list for the next exercise.
-- **Correct the outputs.** When the corrected code changes an output that later exercises may reuse, write the corrected table to the same `Output\focused\` path as a new Delta version, so the candidate's versions stay available through time travel. Then update `Input\intermediate\<output>.md`.
-- **Passes** (no candidate explanation is required any more):
-  - A topic passes when the candidate's **own** code implements it correctly, and the part of the acceptance criteria that depends on it is met.
-  - Topics that were correct only after the interviewer's fix do not pass. List them in `SESSION_NOTES.md` as "corrected by interviewer" so they come back in later exercises.
-  - Low-tier topics pass on correct use.
-  - Never a pass: a mention, an unattempted prompt, or the interviewer's own code or explanation.
-- **Record keeping.** Record each pass in the next empty `Pass_n_Evidence` column of `TOPIC_COVERAGE.csv`, starting with the exercise ID. Then update `SESSION_NOTES.md`.
-- **Intermediate tables.** When an evaluated exercise writes an output that later exercises can reuse, add `Input\intermediate\<output>.md` and a row in `Input\README.md`. Include the location, format, table identifier, producing exercise, grain, row count, Delta versions, columns with types, and the rules that produced derived columns, all taken from the candidate's actual output. If a source schema changes, update its `Input\*.md`. A prompt may point to these files, but must still state the schema it needs.
-
-- **Part C review.** In the notebook review, explain the candidate's run 1 vs run 2 metrics against Part D. Confirm or correct their readings, and record UI depth in `SPARK_UI_COVERAGE.csv`. Reporting the metrics correctly is L1. Choosing a fix and getting the predicted improvement is L2. L3 needs the candidate to diagnose an unannounced or varied scenario in a later exercise, or tune a second knob.
-
-### Spark UI coverage (used by Parts B–D)
-
-Do not ask for a complete UI walk-through. The aim is to go deeper step by step and cover all of `Spark_UI_Topics.txt` over the course of the exercises. The list was streamlined on 2026-11-21 into **12 core concepts `U01`–`U12`** and **12 labs `L01`–`L12`**. Each lab names its trigger (Part B), what to observe (Part C) and the concepts it exercises. `L12` (production reading) applies to every lab.
-
-1. **Pick the focus.** Choose one lab (occasionally two closely linked ones) that the exercise's own code genuinely exercises. Prefer the lab whose concepts have the lowest `Depth_Reached` in `SPARK_UI_COVERAGE.csv`. Follow a sensible progression:
-   - L01 / L03: jobs, stages, tasks
-   - L04 / L05: partitions, shuffle, Exchange
-   - L02: scans and pruning
-   - L06 / L07: joins, SQL tab, AQE
-   - L08: caching
-   - L09: skew
-   - L10: executors, memory, spill
-   - L11: failure lab
-2. **Ask for a prediction first.** Before opening the UI, the candidate answers one question, such as "how many jobs will this action create?" or "will the window add a shuffle?".
-3. **Give an exact location.** State the tab, how to find the right row or query (by its description or action, not a fixed ID), and the element to read: a plan node, stage metric, task summary percentile, Storage entry or Environment property.
-4. **Ask two to four precise questions** about values or observations at that location. Examples: "number of tasks in the stage that contains the Window operator", "Shuffle Write size of that stage", "partition count after AQEShuffleRead", "max vs median task duration".
-5. **Teach.** Explain the physical behavior behind the reported evidence, connect it to the code and the plan, and correct misconceptions. Do not claim fixed job, stage or task counts without the candidate's evidence; they vary with Spark version, AQE, local parallelism, caching and actions.
-6. **Raise depth over time.** Revisit a section at the next depth level in a later exercise:
-   - **L1 Locate & read:** find the right place and read the metric.
-   - **L2 Explain:** connect the metric to the code or plan and say why.
-   - **L3 Diagnose & tune:** change one setting or code path, predict the effect, rerun and compare. Example: `spark.sql.shuffle.partitions`, a broadcast threshold or hint, caching, `repartition`.
-
-   A section counts as covered at L2. Aim for L3 on core objectives such as shuffle, AQE, skew, joins, partitions, memory and spill.
-7. **Record it.** In `SPARK_UI_COVERAGE.csv`, record the depth demonstrated, the exercise ID and the evidence. A section the interviewer taught without a candidate report goes in `Taught_In` only.
-
-Windows safety for failure and memory labs: run them in an isolated Spark process with a JVM heap cap, a bounded workload and outputs under `Output\`. Driver memory is a startup setting, so change it in a new process. Never stress the whole OS or the hardware.
-
-The candidate's Windows Spark setup: `local[6]` (the notebook used `local[4]`), executor memory `8g`, driver memory `4g`, Python worker fault handlers enabled, `spark.sql.debug.maxToStringFields=2000`, Spark 4.0.1 with Delta 4.0.1.
-
-## Knowledge checks: attention, recall and reasoning (added 2026-11-21)
-
-**Purpose.** While teaching, periodically test the candidate's **attention** (catching key details), **memory** (recalling earlier concepts) and **reasoning** (solving unfamiliar problems). Track accuracy, weaknesses and improvement without interrupting the learning flow.
-
-### Question types
-
-| Type | Tests | Source | Good example | Not allowed |
-|---|---|---|---|---|
-| **ATTENTION** | Noticing a detail that matters for correctness | The prompt, review or metrics from the last one or two turns | "Q3 orders a customer's events by one field. Which, and what goes wrong if you use commit_ts instead?" | Trivia: row counts, file names, exact numbers that do not change a decision |
-| **RECALL** | Retrieving an earlier concept without notes | A concept practised or taught at least one exercise earlier, chosen by spaced repetition | "Why did max(row_number()) over an ordered window return 1?" | Function signatures, default values or option names to recite |
-| **REASONING** | Applying concepts to an unfamiliar scenario: predict, diagnose, choose, design | New situations built from mastered or in-progress concepts, often outside the current dataset | "A job's stage has 200 tasks of 5 ms and writes 200 files from 2 MB of data. What happened, and what is the cheapest fix?" | Re-asking a solved exercise in the same words |
-
-Mix: roughly a third of each over time. Prefer REASONING once a concept has two correct RECALLs.
-
-### Rules
-
-- **One question at a time**, at most one per interviewer turn. It goes at the **end** of the turn, after all exercise content, in a block headed `🧠 Quick check K<nnn> (<TYPE>)`, so it never splits instructions.
-- **When.** Ask in every teaching turn: Interaction 1 (prompt), Interaction 3 (review), and explanation or meta turns. Skip only when the turn is a pure file or admin operation.
-- **Answer format.** Answerable in one to three sentences or one line of code, without running Spark.
-- **No rote memorization.** Ask about mechanisms, consequences, trade-offs and diagnoses. Use a concrete detail only when it changes a decision.
-- **No repeats.** Never ask the same question twice. A concept is re-tested with a new scenario or angle.
-- **No hints unless the candidate asks** ("hint"). Then give one minimal hint and set `Hint_Used = Y`; the maximum score becomes 0.5.
-- **No leaks.** A check must not reveal the planted edge cases or the solution of an exercise still in progress. Ask about past exercises, general concepts, or parts of the current prompt that are already explicit.
-- **Pre-registered key points.** Write `Key_Points` (two or three gradable statements) in `KNOWLEDGE_CHECKS.csv` *before* asking. The candidate should not open that file while a check is pending.
-- **Answering is optional and asynchronous.** The candidate can answer at the start of their next message, alongside any work, or say `skip`. A skip is logged and not scored. An unanswered check is carried once into the next turn, then logged as skipped.
-
-### Grading and feedback (light touch)
-
-- **Score** against the key points: **1** (all), **0.5** (partial or hint used), **0** (wrong or missing).
-- **Reply** at the top of the next turn, in at most three lines: the verdict, the missing or incorrect key point, and one line on the correct idea. No lecture; continue the exercise flow straight after.
-- **Log** the answer summary, the score and the misconception (if any) in `KNOWLEDGE_CHECKS.csv`.
-
-### Spaced repetition and adaptivity
-
-- **Leitner boxes per concept.** Next due after **1** exercise in box 1, **2** in box 2, **4** in box 3, **8** in box 4.
-  - Correct (1): move the concept up one box.
-  - Partial (0.5): it stays in its box.
-  - Wrong (0): it goes back to box 1.
-
-  New concepts start in box 1 when first taught or practised. `Box` and `Next_Due_After` (an exercise number) are stored per check row; the concept's current box is in its latest row.
-- **Choosing the next check:**
-  1. RECALL of a due concept, weakest first.
-  2. Otherwise ATTENTION on the latest turn.
-  3. Otherwise REASONING on an in-progress concept.
-
-  Rotate types so that no type is asked three times in a row.
-- **Difficulty** runs from 1 (one idea) to 3 (combining two or three concepts, or an unfamiliar scenario). After two correct answers in a row in a type, raise it; after two misses, lower it.
-- **Feedback into exercises.** A concept with an average below 0.67 over at least two checks is a **weakness**. It becomes a supporting topic in the next exercise, and its RECALL is rescheduled to box 1.
-
-### Learner profile (in `SESSION_NOTES.md`)
-
-Update after each graded check:
-- accuracy overall and by type (all-time and the last 10)
-- the current weaknesses with their misconceptions
-- the strongest concepts
-- the trend: improving, flat or declining, comparing the last 10 checks with the previous 10
-
-Report a one-line summary in each Interaction 3 review, and in more detail every 10 checks.
-
-## One-line resume prompt
-
-"Resume the PySpark hands-on practice using `D:\Project_AI\PySpark_Hands_On\LLM_Metadata\SESSION_NOTES.md`: give one concise, fully specified exercise at a time on Windows local Spark/Delta. Build each from Very High/High primary targets plus supporting Medium topics and at least two Low topics. Keep planted cases hidden and evaluate against an answer key. Each prompt has four parts: A, the question with a brief function overview (alternatives listed; I choose); B, the Spark config that triggers a performance or error scenario; C, the exact UI metrics to report for the before and after runs; D, the bottleneck and its fixes. I reply with code and the Part C report. Validate in one round by running it against an answer key, annotate mistakes and validated fixes in my notebook, answer the design questions yourself and carry them into the next exercise as coding requirements, and track topic and Spark UI coverage toward their targets. End each teaching turn with one knowledge check (attention, recall or reasoning; spaced repetition; no hints unless I ask), grade my answer in at most three lines at the start of your next turn, and keep KNOWLEDGE_CHECKS.csv and the learner profile up to date."
+Start fresh at [Questions/Q3.txt](../Questions/Q3.txt): customer-profile history from CDC, built through small
+connected coding tasks. Follow SESSION_NOTES.md for the current step. There is no full-solution submission barrier.

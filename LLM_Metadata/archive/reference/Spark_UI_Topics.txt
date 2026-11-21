@@ -1,0 +1,79 @@
+Spark UI & Performance Topics (streamlined 2026-11-21)
+=====================================================
+Goal: read the Spark UI like a production engineer, by first experiencing each bottleneck or failure
+(triggered with a config change, Part B of every exercise) and then fixing it.
+Archive of the original list: archive\2026-11-21_before_streamlining\Spark_UI_Topics.txt
+
+Core Concepts
+  U01 Jobs, stages, tasks and the DAG (lazy evaluation, narrow vs wide, stage boundaries)
+  U02 Shuffle mechanics and Exchange operators (hash / round-robin / range partitioning)
+  U03 Query planning: Catalyst, Tungsten, whole-stage code generation
+  U04 Adaptive Query Execution (coalescing, skew join, join switching, runtime statistics)
+  U05 Scan optimizations: column pruning, predicate pushdown, partition and dynamic partition pruning
+  U06 Join strategies and broadcast thresholds
+  U07 Partition sizing and shuffle-partition tuning
+  U08 Executor sizing and executor metrics (CPU, GC, serialization)
+  U09 Memory management and spill (unified memory: execution vs storage)
+  U10 Caching and persistence
+  U11 Skew analysis and stragglers
+  U12 Failure diagnosis (driver OOM, executor OOM, broadcast failure, task explosion, logs)
+
+
+Labs (each one is run inside an exercise: trigger in Part B, observe in Part C, fix in Part D)
+===============================================================================================
+
+L01 Lazy evaluation and job boundaries                                   [U01]
+  Trigger : chain filter / select / withColumn, then call count, show, collect and write in turn.
+  Observe : no job before an action; how many jobs each action creates and why.
+
+L02 Reading files: schema inference and scan pruning                     [U03, U05]
+  Trigger : read the same files with and without inferSchema; select few vs all columns;
+            filter on a partition column vs a data column.
+  Observe : the extra inference scan; PartitionFilters / PushedFilters / ReadSchema in the scan node.
+
+L03 Stages and tasks                                                     [U01, U07]
+  Trigger : a narrow-only pipeline vs groupBy / join; repartition(5 / 20 / 100).
+  Observe : stage boundaries at wide transformations; one task per partition.
+
+L04 Partitions and shuffle partitions                                    [U07, U04]
+  Trigger : AQE off with the default spark.sql.shuffle.partitions = 200; then a tuned value or AQE on.
+  Observe : the task count of the shuffle stage, tiny tasks, output file count; why the default is 200.
+
+L05 Shuffle and Exchange                                                 [U02]
+  Trigger : groupBy, distinct, dropDuplicates and a join compared with a narrow transformation.
+  Observe : Shuffle Read / Write per stage; the Exchange type in explain(); when shuffle size can be
+            greater than data size (serialization, wide rows, exploded data, no column pruning).
+
+L06 Join strategies                                                      [U06, U02]
+  Trigger : autoBroadcastJoinThreshold = -1 vs a broadcast hint; SHUFFLE_HASH / MERGE hints.
+  Observe : BroadcastExchange vs SortMergeJoin vs ShuffledHashJoin in the SQL tab; shuffle metrics.
+
+L07 SQL tab, plans and AQE                                               [U03, U04]
+  Trigger : the same query with AQE on and off; explain("formatted").
+  Observe : plan nodes mapped to stages and tasks; WholeStageCodegen ids; AQEShuffleRead and the
+            final vs initial plan.
+
+L08 Caching and persistence                                              [U10, U09]
+  Trigger : reuse a DataFrame with and without cache() / persist(level); unpersist.
+  Observe : the Storage tab (fraction cached, size); cache hits in later jobs; eviction under memory pressure.
+
+L09 Skew and salting                                                     [U11, U04]
+  Trigger : join or aggregate on a hot key (placeholder / hot customer) with AQE skew handling off.
+  Observe : the max vs median task duration in stage Summary Metrics; the straggler; then salting
+            or AQE skew join.
+
+L10 Executor metrics, memory and spill                                   [U08, U09]
+  Trigger : a large groupBy / sort with lower spark.executor.memory, spark.memory.fraction or local[1].
+  Observe : Spill (memory / disk), GC time, peak execution memory, serialization time in the Executors
+            and Stages tabs.
+
+L11 Failure lab (bounded, isolated session, heap caps)                   [U12]
+  Trigger : (a) spark.driver.memory = 512m plus collect() of a large result; (b) repartition(5000);
+            (c) broadcast an oversized table; (d) an executor OOM on an exploded or skewed aggregate.
+  Observe : the error message and its failing stage / task; the driver log; task explosion and
+            scheduling overhead; how each fix changes the UI.
+
+L12 Reading the Spark UI like a production engineer                      [all, used in every lab]
+  Tabs    : Jobs, Stages, SQL / DataFrame, Executors, Storage, Environment.
+  Always answer: What happened? Why? Which stage and task caused it? Was there a shuffle?
+                 How much data moved? Was memory sufficient? What would you change?

@@ -1,190 +1,69 @@
-Primary Topics (streamlined 2026-11-21)
-==========================================
-Each item is a skill to demonstrate in code, not a function to memorize. The function names in brackets
-show the scope; the exercise prompts list the functions you may need. Importance tags are unchanged
-from the original list (archive: archive\2026-11-21_before_streamlining\Primary_Topics.txt).
-IDs: C = core objective (treated as High), O<section>.<item> = operation skill.
+Hands-on PySpark practice map
+===========================
+Goal: build working pipelines and think through their design as a data architect.
+Use one lane and one small problem at a time. This is a menu, not a completion checklist.
+No pass quotas, grades, API memorization or obligation to work through every reference entry.
 
-Core Objectives (Importance: High)
-  C01 Conditional data manipulation
-  C02 Adding fields: primary / surrogate keys, file-name metadata, ingestion timestamps
-  C03 Date and timestamp manipulation (parsing, time zones, arithmetic)
-  C04 Deduplication and duplicate detection, incl. sorting and selective dropping
-  C05 Accumulators (counters, sums, debugging metrics) and broadcast variables
-  C06 Advanced window functions, incl. window + aggregation
-  C07 Partition-level processing: foreachPartition, mapPartitions, toLocalIterator
-  C08 Complex types: arrays, structs, maps, JSON (transform, map, array, create_map, to_json)
-  C09 EDA, statistical profiling, cardinality and categorical profiling
-  C10 Dirty data handling
-  C11 Correlation and relationship analysis
-  C12 Partitioning strategy
-  C13 Join optimization strategies
-  C14 Skew handling, incl. joins with and without simple salting
-  C15 Pivot tables (cross-tabulation)
-  C16 Year-over-year (YoY) and month-over-month (MoM) analysis
-  C17 Gap / anti-join analysis
+1. Read trustworthy inputs
+   - Read JSON/CSV/Parquet/Delta with an appropriate schema; separate malformed input from valid data.
+   - Preserve lineage and useful ingestion metadata; reason about inference, schema drift and safe conversion.
+   - Reconcile file/row counts and define what to quarantine, reject or accept.
+   Architect lens: what is the source contract, and what must remain replayable?
+   UI: file discovery vs scanning; cache materialization and scan pruning.
 
+2. Transform and validate
+   - Select/derive/filter columns using sound conditional and null logic; clean and parse only what is required.
+   - Aggregate/profile at the correct grain; use meaningful quality rules, thresholds and exception evidence.
+   - Pivot/unpivot or choose SQL/DataFrame expressions when the business output needs reshaping.
+   Architect lens: what does one row mean before and after this step?
+   UI: narrow work vs aggregate shuffle; column pruning and native expressions.
 
-Operations
-==========
+3. Handle time correctly
+   - Parse timestamps/epochs with explicit assumptions, invalid-data handling and required precision.
+   - Distinguish an instant from time-zone rendering; validate UTC/local display and daylight-saving ambiguity where relevant.
+   - Implement only the calendar boundaries, intervals or YoY/MoM comparisons required by the problem.
+   Architect lens: is this commit time, arrival time or business-effective time?
+   Reference only: exhaustive date extractors, formatting tokens and function signatures.
 
-1. DataFrame Basics - Importance: Low
-  O01.1 Projecting columns [select, selectExpr, alias, drop]
-  O01.2 Deriving and renaming columns [withColumn, withColumns, withColumnRenamed]
-  O01.3 Filtering rows [filter / where]
-  O01.4 distinct vs dropDuplicates(subset)
+4. Relate and reconcile datasets
+   - Choose joins and keys; preserve unmatched rows, handle null keys, predict fan-out and check referential integrity.
+   - Distinguish duplicate deliveries, exact duplicates and competing versions; define deterministic winners.
+   - Combine/compare compatible datasets with correct positional/by-name and distinct/multiset semantics.
+   Architect lens: what relationship and cardinality are assumed, and how will we prove them?
+   UI: broadcast vs shuffle join, skew and data movement.
 
-2. Joins - Importance: High
-  O02.1 Choosing the join type [inner, left, right, full outer, cross]
-  O02.2 Semi and anti joins (existence and gap checks)
-  O02.3 Multi-column, expression and range joins (incl. point-in-time / as-of)
-  O02.4 Null keys in joins and null-safe equality [<=>, eqNullSafe]
-  O02.5 Join cardinality and fan-out (duplicate keys)
-  O02.6 Broadcast joins and join hints
-  O02.7 Skewed joins (detect, then mitigate)
+5. Work with ordered and nested data
+   - Use windows for ranking, previous/next events and running/rolling values with deliberate frames and tie behavior.
+   - Derive event sequences, gaps, sessions or Top-N when needed.
+   - Access/transform arrays, structs, maps and nested JSON; control null/empty behavior, ordering and explode cardinality.
+   Architect lens: are we changing event order, time meaning or row grain?
+   UI: Exchange, Sort and Window; connect the physical plan to actual stages.
 
-3. Aggregations & Grouping - Importance: Medium
-  O03.1 groupBy / agg with multiple aggregates [sum, count, avg, min, max]
-  O03.2 Distinct counting [countDistinct vs approx_count_distinct]
-  O03.3 Collecting values [collect_list vs collect_set: order and dedup semantics]
-  O03.4 Conditional aggregation [sum(when ...), count_if, filter]
-  O03.5 Aggregation + join (aggregate before or after the join; grain)
-  O03.6 Aggregation + window (aggregates over a window)
+6. Model change and history — current focus: FP-003
+   - Build current state or historical versions from CDC, including deletes, no-change updates and late events.
+   - Design replay-safe incremental boundaries and idempotent processing; verify a rebuild gives the same business result.
+   - Model business/surrogate keys and fact/dimension relationships, including effective-dated joins and late dimensions.
+   Architect lens: what is the temporal contract, and how does recovery work after partial failure?
+   Reference: SCD3/SCD4, star/snowflake and Data Vault trade-offs; implement specialized models only when useful.
 
-4. Window Functions - Importance: Very High
-  O04.1 Window specs: partitionBy / orderBy
-  O04.2 Ranking and tie semantics [row_number, rank, dense_rank]
-  O04.3 Previous / next record comparison [lag, lead]
-  O04.4 first / last (incl. ignoreNulls)
-  O04.5 Frames: rowsBetween vs rangeBetween, and the default-frame gotcha
-  O04.6 Running, cumulative and rolling calculations
-  O04.7 Sessionization and gap detection
-  O04.8 Event sequence analysis
-  O04.9 Window + conditional logic; several window specs in one query
-  O04.10 Latest-record selection and deduplication with windows
+7. Deliver reliable Delta tables
+   - Write and mutate tables with clear path/catalog identity, schema rules and MERGE/update/delete behavior.
+   - Understand version history, concurrency and retention; verify recovery and VACUUM implications.
+   - Improve file layout, compaction, statistics, pruning and data skipping from measured workload evidence.
+   Architect lens: what correctness and recovery guarantees do downstream consumers need?
+   Reference: generated/identity columns, constraints, cloning, ZORDER/clustering and platform-specific options.
 
-5. Deduplication - Importance: Medium
-  O05.1 Exact vs key-based dedup [distinct, dropDuplicates]
-  O05.2 Latest / earliest record per key, by timestamp [window, max_by / min_by]
-  O05.3 Deterministic tie-breaking
-  O05.4 Dedup before vs after a join
+8. Reason about execution and cost
+   - Choose partitions and native vs UDF processing from actual data volume, distribution and observed execution.
+   - Bound driver data and reason about serialization, retry-safe partition writes and broadcast/accumulator semantics.
+   - Diagnose shuffle, skew, cache, spill and small files; change one variable and verify correctness and benefit.
+   Architect lens: which resource or data-distribution assumption limits the design?
+   Reference: foreachPartition/mapPartitions, Pandas UDF/Arrow, accumulator APIs and engine internals as needed.
 
-6. Conditional Logic - Importance: High
-  O06.1 when / otherwise chains (first-match semantics, nesting)
-  O06.2 Conditional logic with nulls [coalesce, null-safe tests]
-  O06.3 Conditional logic inside aggregations, windows, joins and date logic
-
-7. Null Handling - Importance: Medium
-  O07.1 Null tests and three-valued logic [isNull, isNotNull, comparisons with null]
-  O07.2 Null vs NaN [isnan]
-  O07.3 Filling and dropping [fillna / na.fill, dropna / na.drop, coalesce]
-  O07.4 Nulls in joins, aggregations, windows and sorting
-
-8. Date & Time - Importance: Medium
-  O08.1 Parsing strings to date / timestamp, incl. multiple formats [to_date, to_timestamp, try_to_timestamp]
-  O08.2 Formatting and extracting parts [date_format, year, month, dayofweek, hour ...]
-  O08.3 Date and timestamp arithmetic and differences [date_add, add_months, datediff, months_between, intervals]
-  O08.4 Epoch conversions [unix_timestamp, from_unixtime, timestamp_millis]
-  O08.5 Time zones (session time zone vs stored UTC instant) [from_utc_timestamp, to_utc_timestamp]
-  O08.6 Truncating and bucketing time for period analysis [date_trunc, trunc]
-
-9. String Operations - Importance: Low
-  O09.1 Cleaning and normalizing [trim, lower / upper, regexp_replace, replace]
-  O09.2 Parsing and extracting [substring, split, regexp_extract, length]
-  O09.3 Building strings [concat, concat_ws]
-  O09.4 Pattern matching [like, rlike, contains, startswith, endswith]
-
-10. Arrays / Structs / Nested Data - Importance: Medium
-  O10.1 Struct and nested field access [dot paths, select("s.*")]
-  O10.2 Exploding and row cardinality [explode, explode_outer, posexplode]
-  O10.3 Array functions [size, array_contains, element_at, slice, flatten, array_distinct]
-  O10.4 Higher-order functions [transform, filter, exists, aggregate]
-  O10.5 Maps [create_map, map_keys, map_values, exploding a map]
-  O10.6 Re-aggregating into arrays [collect_list, collect_set]
-  O10.7 JSON strings [from_json, to_json, schema_of_json]
-
-11. Pivot / Unpivot - Importance: High
-  O11.1 pivot with aggregation (controlled values vs dynamic discovery, and its cost)
-  O11.2 Unpivot, wide to long [stack, unpivot]
-  O11.3 Long-to-wide reports and cross-tabs
-
-12. Partition-Aware Operations - Importance: High
-  O12.1 repartition vs coalesce (by count, by column, by range)
-  O12.2 Partition count reasoning (input, shuffle and output partitions)
-  O12.3 Output layout with partitionBy (file counts, pruning)
-  O12.4 Shuffle awareness and data distribution
-  O12.5 Avoiding shuffles [broadcast, pre-partitioned data]
-
-13. UDF & Function Selection - Importance: Medium
-  O13.1 Built-ins first: replacing UDFs with native or higher-order functions
-  O13.2 Python UDF vs Pandas (vectorized) UDF: serialization, Arrow
-  O13.3 What a UDF costs: Catalyst and codegen implications
-
-14. Reading & Writing Data - Importance: Medium
-  O14.1 Explicit schema vs inferSchema
-  O14.2 CSV options [header, delimiter, quote, escape, multiLine, mode]
-  O14.3 JSON options and corrupt records [multiLine, columnNameOfCorruptRecord, PERMISSIVE / DROPMALFORMED / FAILFAST]
-  O14.4 Parquet and Delta read / write
-  O14.5 Save modes and compression [append, overwrite, ignore, errorifexists]
-  O14.6 File selection and lineage [globs, basePath, recursiveFileLookup, _metadata.file_path]
-
-15. Schema Operations - Importance: Medium
-  O15.1 Defining schemas, incl. nested types [StructType / StructField, DDL strings]
-  O15.2 Casting and type conversion [cast vs try_cast, ANSI mode]
-  O15.3 Inspecting and validating schemas [schema, printSchema, comparing with the expected schema]
-  O15.4 Schema evolution concepts (added, renamed and type-drifted columns)
-
-16. Spark SQL & Expressions - Importance: Low
-  O16.1 SQL expressions inside DataFrame code [expr, selectExpr]
-  O16.2 spark.sql with temporary views (DataFrame <-> SQL interop)
-
-17. Set & Union Operations - Importance: Medium
-  O17.1 union vs unionByName (column order, allowMissingColumns, schema compatibility)
-  O17.2 intersect / except / exceptAll (duplicate semantics)
-
-18. Sorting & Top-N - Importance: Low
-  O18.1 Global ordering and limits [orderBy / sort, asc / desc, nulls first / last, limit]
-  O18.2 Top-N per group (window-based)
-
-19. Ad-hoc / Advanced Spark Operations - Importance: High
-  O19.1 Broadcast variables
-  O19.2 Accumulators (and the task-retry double-count gotcha)
-  O19.3 Actions that move data to the driver, and avoiding driver OOM [collect, take, head, first, toLocalIterator]
-  O19.4 Partition-level vs row-level processing [foreachPartition, mapPartitions vs foreach, map, flatMap]
-  O19.5 Driver vs executor execution and serialization (closures)
-
-20. Data Modeling, CDC & Data Warehouse Patterns - Importance: Very High
-  O20.1 SCD Type 1 and Type 3 (overwrite; previous-value columns)
-  O20.2 SCD Type 2 (history with validity intervals)
-  O20.3 SCD Type 4 (current table + history table)
-  O20.4 CDC processing (ordered change events, deletes)
-  O20.5 Upsert patterns [MERGE]
-  O20.6 Soft vs hard delete handling
-  O20.7 Late-arriving data (facts and dimensions)
-  O20.8 Surrogate key generation
-  O20.9 Fact-dimension modeling: star vs snowflake schema
-  O20.10 Data Vault basics (hubs, links, satellites)
-  O20.11 Incremental and watermark-based loading
-  O20.12 Idempotent processing (reruns, replays)
-
-21. Delta Lake Optimization & Maintenance - Importance: High
-  O21.1 Small-file problem and compaction [OPTIMIZE, optimized writes, auto compaction]
-  O21.2 Data skipping [statistics, ANALYZE TABLE, ZORDER / clustering, partition pruning]
-  O21.3 VACUUM, retention and time-travel impact
-  O21.4 File layout design (partition choice, file sizing)
-
-22. Delta Lake Transaction Management - Importance: High
-  O22.1 Creating Delta tables (path vs catalog, managed vs external) and the DeltaTable API
-  O22.2 UPDATE, DELETE and MERGE INTO
-  O22.3 Transaction log, ACID and optimistic concurrency
-  O22.4 Schema enforcement vs evolution [mergeSchema, overwriteSchema]
-  O22.5 Generated columns, identity columns and constraints
-  O22.6 Time travel and cloning
-
-23. Data Reconciliation & Data Quality - Importance: High
-  O23.1 Count and column reconciliation (source vs target; input = valid + rejects)
-  O23.2 Hash / checksum validation (row hashes, table fingerprints)
-  O23.3 Rule-based validation from config (JSON or table-driven rules, thresholds)
-  O23.4 Duplicate, null and referential-integrity checks
-  O23.5 Exception / quarantine reporting and audit design
-  O23.6 Data profiling and exploratory data analysis
+How to use this map
+- A coding sub-problem normally needs 1–2 meaningful lines/statements; split longer work instead of code-golfing.
+- Use documentation/AI for syntax. Ask for a hint, "do this one", "skip" or "next" freely.
+- Skipping means the LLM supplies the small runnable step and its effect, then continues when you are ready.
+- Before moving on, the LLM must flag a relevant UI observation, especially after an action, cache, shuffle or write.
+- Favor a one-sentence architectural decision tied to the code over a separate quiz or long design essay.
+- The detailed catalogue remains at archive/reference/Primary_Topics.txt. It expands this map; it is not extra homework.

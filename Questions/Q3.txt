@@ -1,134 +1,153 @@
-FP-003 — Customer-profile history (SCD Type 2) from a change feed
+FP-003 — Build customer-profile history, one small step at a time
 
-Environment: Windows local Spark 4.0.1 + Delta 4.0.1 (your notebook session). Save as User_Responses\Response_3.ipynb with outputs.
-Schema reference: Input\crm_customer_changes.md
+Business goal
+Account management wants to know what a customer's profile looked like at a given time.
+Build a Delta history table from delivered change events. Each output row describes one profile version,
+not a delivered event or a separate before/after image.
 
-======================================================================
-PART A — The question
-======================================================================
-Business need: Account management wants the full history of every customer profile, so any report can ask "what did
-this customer's profile look like at time T?". Build it from the profile system's change feed.
+How we will work
+- The roadmap below is for orientation. The LLM presents ONLY the current sub-problem in chat.
+- Each coding answer should normally need 1–2 meaningful lines/statements. Split larger work, not compress it.
+- Say "hint", "explain", "do this one" or "skip" freely. For an easy step, the LLM supplies that step and continues
+  after execution is confirmed. It does not solve later steps unless asked.
+- A relevant UI checkpoint still needs to be announced after delegated work. The LLM waits for your observation
+  or an explicit "skip UI" before moving on. No grades, quizzes, pass counts or separate design essay.
+- At useful decision points, discuss one architect-level question in a sentence: grain, ordering, temporal meaning,
+  replay/recovery or cost. These are design discussions, not scored assessments.
 
-Input
-- All *.jsonl files under D:\Project_AI\PySpark_Hands_On\Input\landing\crm\customer_changes\ (every arrival_date folder).
-- One JSON change event per line:
-    event_id        STRING
-    op              STRING    r = initial snapshot row, c = create, u = update, d = delete
-    source_seq      BIGINT    commit order in the source system (higher = committed later)
-    commit_ts       STRING    commit time, ISO-8601 UTC with milliseconds, e.g. 2026-09-06T03:50:35.000Z
-    customer_id     STRING
-    effective_from  STRING    business date (not used in this exercise)
-    changed_fields  ARRAY<STRING>
-    before, after   STRUCT<segment STRING, account_manager STRING, city STRING, credit_limit INT, status STRING>
-                    (before is null for r/c; after is null for d)
+Environment and setup
+Windows local Spark 4.0.1 + Delta 4.0.1; fresh notebook kernel; local[4] for the comparison.
+Workspace: D:\Project_AI\PySpark_Hands_On
+Notebook: User_Responses\Response_3.ipynb, with saved outputs. Preserve existing work in separate cells/sections.
+The LLM may supply imports, explicit schema, paths and snapshot/rebuild helper setup separately. Rebuild helpers
+must assemble already agreed steps, not introduce an unseen business solution. Setup is not a memorization exercise.
+Confirm setup has run before referring to its variables. Keep input files and existing Delta history intact.
 
-Rules
-1. Lines that are not valid JSON events are ignored; report how many.
-2. An event delivered more than once (same event_id) counts once.
-3. Apply each customer's events in source_seq order.
-4. Every r or c event, and every u event that changes at least one attribute, starts a new version holding the
-   "after" image. A u event that changes nothing starts no version and ends none.
-5. A version is valid from its event's commit_ts until the commit_ts of the customer's next version-starting or
-   d event. A d event ends the open version and starts none; a later c starts a new version.
-6. The last version of a customer that was not deleted is open: valid_to_ts is null and is_current is true.
+Input contract
+Read all *.jsonl data files from every arrival_date folder under:
+D:\Project_AI\PySpark_Hands_On\Input\landing\crm\customer_changes\
+Reference: Input\crm_customer_changes.md
+One delivered event per line; an event may be delivered more than once.
 
-Output — overwrite Delta
-- Path:  D:\Project_AI\PySpark_Hands_On\Output\focused\FP-003_customer_profile_scd2
-- Table: FP_003_customer_profile_scd2
-- Schema:
-    customer_id          STRING
-    segment              STRING
-    account_manager      STRING     nullable
-    city                 STRING
-    credit_limit         INT
-    status               STRING
-    valid_from_ts        TIMESTAMP  instant of commit_ts
-    valid_to_ts          TIMESTAMP  null when open
-    is_current           BOOLEAN
-    source_seq           BIGINT     of the event that started the version
-    valid_from_utc_text  STRING     valid_from_ts rendered in UTC,           format yyyy-MM-dd HH:mm:ss.SSS
-    valid_from_ist_text  STRING     valid_from_ts rendered in Asia/Kolkata,  format yyyy-MM-dd HH:mm:ss.SSS
+  event_id        STRING           Event identity.
+  customer_id     STRING           Customer-profile identity.
+  op              STRING           r = initial snapshot, c = create, u = update, d = delete.
+  source_seq      BIGINT           Source commit order; higher means committed later.
+  commit_ts       STRING           ISO-8601 UTC commit timestamp with milliseconds.
+  effective_from  STRING           Business-effective date; not the version clock for this problem.
+  changed_fields  ARRAY<STRING>    Changed attributes; an update with no changes has an empty array.
+  before          STRUCT           Profile before the change; null for r/c.
+  after           STRUCT           Profile after the change; null for d.
 
-Acceptance criteria
-- At most one open version per customer; open versions = customers whose last event is not a delete.
-- A customer's versions never overlap: each version's valid_to_ts equals the next version's valid_from_ts, except
-  across a delete.
-- For every row, valid_from_ist_text is exactly 5h30m later than valid_from_utc_text, whatever your session time zone.
-- Determinism: run the whole build twice (run 1 and run 2, see Part B). Both runs write the same path, giving Delta
-  versions 0 and 1. Prove the two versions hold identical rows: the difference in each direction is 0 rows.
+Both profile structs contain:
+  segment STRING, account_manager STRING (nullable), city STRING, credit_limit INT, status STRING.
+The explicit reader schema also includes a STRING field for retaining malformed JSON for counting.
 
-Submit (counts printed by the notebook)
-- files read, input lines, ignored lines, distinct events, duplicate deliveries removed, no-change updates,
-  deletes, versions written, open versions, distinct customers
-- top 5 customers by number of versions (ties: customer_id ascending)
-- Delta data-file count of version 0 and version 1, and the two difference counts
-- the Part C report
+An r event reports a profile already present at the starting snapshot. A c event reports a newly created profile.
 
-Function overview (may or may not be needed; choose what you think is best)
-- spark.read.schema(s).option("columnNameOfCorruptRecord", c).json(path): parse JSON with an explicit schema;
-  unparseable lines keep their text in column c and nulls elsewhere.
-- col("after.segment") / selectExpr("after.*"): read fields of a struct column.
-- dropDuplicates(["k"]): keep one row per key (which one is unspecified). Alternative: row_number() over a window
-  on k with an explicit order: deterministic choice.
-- size(array_col): number of elements (0 for an empty array). Alternative: compare structs directly, before == after.
-- Window.partitionBy(k).orderBy(o) + lead(c) / lag(c): value of c in the next / previous row of the same key.
-  Alternatives for "valid to": a self-join to the next version, or min(c) over a frame of the following rows.
-- try_cast(x AS TIMESTAMP): string -> timestamp, null when unparseable. NOTE: Spark 4 runs in ANSI mode, so a plain
-  cast() of a bad value raises an error instead of returning null. to_timestamp / try_to_timestamp(col, fmt)
-  parse with an explicit pattern.
-- date_format(ts, fmt): renders a timestamp as text in the SESSION time zone (spark.sql.session.timeZone).
-  from_utc_timestamp(ts, tz): shifts an instant so its rendering shows tz's wall-clock time. Ways to get both
-  texts: switch the session zone between renders; shift with from_utc_timestamp / to_utc_timestamp before
-  date_format; or format with an explicit zone conversion. Pick one and make it independent of the session zone.
-- groupBy(k).count().orderBy(desc("count"), k).limit(5): Top-N.
-- a.exceptAll(b): rows of a missing from b (duplicates respected). subtract() is the distinct-only version.
-  Alternative proof: compare an order-independent fingerprint (count + sum of a row hash) of both versions.
-- spark.read.format("delta").option("versionAsOf", n).load(path): read an older version (time travel).
-  spark.sql("DESCRIBE DETAIL delta.`<path>`"): numFiles; DESCRIBE HISTORY: one row per version.
+Business rules
+- Ignore malformed JSON lines and count them separately from duplicate deliveries.
+- A repeated event_id counts once. Interpret each customer's events in source_seq order, not arrival order.
+- Each r/c event starts a version with its after image.
+- An update that changes attributes closes the open version and starts another with its after image.
+- A no-change update creates no version and changes no validity date.
+- A delete closes the open version but creates no output version. A later create may start another version.
+- A version starts at its creating event's commit_ts and ends at the closing event's commit_ts.
+- An unclosed version has valid_to_ts = null and is_current = true.
+- Profile status is a source attribute; is_current describes whether that historical version is open.
 
-======================================================================
-PART B — Spark config for this exercise (performance scenario)
-======================================================================
-Run 1 (before your first write), in the existing session (runtime settings, no restart needed):
-    spark.conf.set("spark.sql.adaptive.enabled", "false")      # disable AQE
-    print(spark.conf.get("spark.sql.shuffle.partitions"))       # confirm it is 200 (the default)
-Keep master local[4]. Do not change memory settings for this exercise.
-Run 2: apply the Part D fix of your choice, then run the same build again into the same path.
+Output contract
+Unpartitioned Delta, overwrite current contents while preserving earlier versions.
+Path:  D:\Project_AI\PySpark_Hands_On\Output\focused\FP-003_customer_profile_scd2
+Table: FP_003_customer_profile_scd2
 
-======================================================================
-PART C — Observe and report back (Spark UI http://localhost:4040)
-======================================================================
-Before running, predict: how many Parquet data files will run 1 write?
-For run 1 AND run 2, report:
-1. SQL / DataFrame tab -> the query of your Delta write -> details graph:
-   a) the Exchange node's partitioning (expression and number of partitions)
-   b) is there an AQEShuffleRead node above it? If yes, how many partitions after coalescing?
-2. Stages tab -> the stage that contains your Window operator (it reads the shuffle):
-   a) number of tasks
-   b) Summary Metrics: median and max task Duration, median Shuffle Read Size
-   c) stage Duration
-3. Data files in the Delta version written by that run (DESCRIBE DETAIL numFiles, or count the
-   part-*.parquet files added in that version).
+  customer_id          STRING
+  segment              STRING
+  account_manager      STRING, nullable
+  city                 STRING
+  credit_limit         INT
+  status               STRING
+  valid_from_ts        TIMESTAMP   Commit-time instant that started the version.
+  valid_to_ts          TIMESTAMP   Closing commit-time instant; null if open.
+  is_current           BOOLEAN
+  source_seq           BIGINT      Sequence of the event that started this version.
+  valid_from_utc_text  STRING      valid_from_ts rendered in UTC.
+  valid_from_ist_text  STRING      The same instant rendered in Asia/Kolkata.
 
-======================================================================
-PART D — The bottleneck you will see, and how to fix it
-======================================================================
-What happens in run 1
-- The Window needs every row of a customer in one partition, so Spark inserts a shuffle (Exchange
-  hashpartitioning(customer_id, 200)). With AQE off, the shuffle keeps exactly spark.sql.shuffle.partitions = 200
-  partitions. About 1,600 rows spread over 200 partitions is roughly 8 rows per task.
-- Result: 200 tiny tasks whose scheduling and start-up cost dwarfs the work (median task duration of a few ms,
-  stage duration dominated by overhead). The writer also creates one file per non-empty partition, so up to
-  200 small Parquet files: the "small file problem", which slows every later read (file listing, opening, metadata).
-- Measured on this dataset (interviewer run, local[4]): AQE off -> 200 files, write about 11 s;
-  AQE on -> 1 file, about 4 s; AQE off + shuffle.partitions=4 -> 4 files, about 2 s.
+Both text columns use yyyy-MM-dd HH:mm:ss.SSS, correctly regardless of the session time zone.
 
-Fixes (choose one for run 2; be ready to say why)
-1. Re-enable AQE: spark.conf.set("spark.sql.adaptive.enabled", "true"). Spark measures the real shuffle size at
-   runtime and coalesces small partitions (AQEShuffleRead). The default since Spark 3.2, and the general fix.
-2. Size the shuffle for the data: spark.conf.set("spark.sql.shuffle.partitions", "4") (about 1–3x the cores for
-   small data). Predictable, but a fixed number goes stale as the data grows.
-3. Control the file count at the write: df.coalesce(n) (no extra shuffle, but it also reduces the parallelism of
-   the work before it) or df.repartition(n) (an extra shuffle, balanced files).
-4. Compact after writing: OPTIMIZE delta.`<path>` (Delta bin-packing; Databricks also offers optimized writes and
-   auto-compaction). It treats the symptom after the fact.
+Small-step roadmap — not a batch of questions
+The LLM establishes stable names as we go: raw for parsed input with lineage, events for unique valid events,
+then a separate working sequence and profile_history for the final output. Keep raw available for accounting.
+
+  S01 Read the data and add the full source-file path.                    [input UI pause]
+  S02 Request caching of raw; distinguish the request from execution.
+  S03 Materialize raw and record the input-line count.                    [cache UI pause]
+  S04 Count malformed lines.
+  S05 Exclude malformed lines and record valid deliveries.
+  S06 Deduplicate event deliveries and record the unique-event count.     [first shuffle UI pause]
+  S07 Record duplicate-delivery count and files read; split if needed.
+  S08 Count no-change updates and deletes in unique valid events.
+  S09 Prepare the events relevant to version boundaries.
+  S10 Interpret commit timestamps as instants with the required precision.
+  S11 Define per-customer source-event ordering.
+  S12 Determine version end timestamps.
+  S13 Select events that produce output versions and expose profile attributes.
+  S14 Mark open versions.
+  S15 Add the UTC text rendering.
+  S16 Add the IST text rendering of the same instant.
+  S17 Select the required output schema in order.
+  S18 Validate input accounting with one check.
+  S19 Validate open-version behavior with one check.
+  S20 Validate interval boundaries; split each remaining invariant into its own small check.
+  S21 Validate timestamp rendering; split into small checks as needed.
+  S22 Show the five customers with most versions; tie-break by customer_id ascending.
+  S23 Set up baseline execution, then write the validated result.           [write UI pause]
+  S24 Choose and apply one execution change after viewing the baseline.    [baseline recorded first]
+  S25 Rebuild from the same source and write again.                        [comparison UI pause]
+  S26 Compare the two actual Delta versions in both directions.
+  S27 Restore the original runtime settings and record the next practice step.
+
+If a roadmap item needs more than two meaningful statements, the LLM splits it further and asks only the next piece.
+Counts can be recorded as variables and displayed when relevant; there is no giant final report to type by hand.
+
+Correctness checks, introduced individually
+- Input lines reconcile to malformed lines plus valid deliveries; valid deliveries reconcile to unique events
+  plus duplicate deliveries. Count no-change updates and deletes after event deduplication.
+- At most one open version per customer; no open version for a customer whose final event is a delete.
+- Versions follow source order and do not overlap. Adjacent versions meet except across a delete gap.
+  Coincident start/end is allowed; an end earlier than its start is not.
+- No-change updates leave dates unchanged. Replays do not change business results.
+- Preserve profile attributes, nulls, required types and timestamp precision.
+- UTC and IST text describe the same instant; IST wall-clock text is 5h30m later.
+- Two builds produce identical rows, respecting duplicate multiplicity. Row counts alone are insufficient proof.
+
+UI pauses — collect one observation per exchange
+Input: after S01 inspect Jobs for any discovery/inference work. A read can create preparatory jobs before an action.
+Cache: after S03 inspect Storage cached partitions/fraction, then connect the action to SQL/Jobs as needed.
+Shuffle: after the first relevant action inspect its Exchange and downstream stage. A window transformation alone
+may have no executed plan yet; inspect it once a later action runs it.
+Write: before changing settings or writing again, capture the current write's SQL execution and associated stage.
+Do not restart the kernel, unpersist or obscure that evidence until it is captured or you explicitly skip the pause.
+
+The LLM supplies the exact navigation one move at a time. Use action/time/target path, not fixed IDs. In the relevant
+SQL plan, read Exchange partitioning and AQEShuffleRead if present. Then read tasks, median/max task duration,
+median Shuffle Read Size and stage duration from the associated stage, one at a time and with units.
+If an operator is absent, report what actually ran. No expected job/task/file counts are grading targets.
+
+Focused comparison after the business result works
+Baseline: save the existing values, then explicitly set spark.sql.adaptive.enabled=false and
+spark.sql.shuffle.partitions=200. These are runtime SQL settings; use separate small setup steps if needed.
+Keep input, business logic, local[4], memory and cache conditions consistent.
+After observing the baseline, choose one relevant setting change; request a hint if needed. Rebuild the same
+business result under the changed setting, rather than writing a cached final result whose plan was already fixed.
+The LLM may assemble the already agreed build into a callable helper to keep this to small coding steps.
+
+Record the actual Delta version and active data-file count after each write. Existing tables need not start at
+version 0. Count files active in the selected snapshot, not all files physically retained in the directory.
+Compare the two versions in both directions with duplicate-aware row differences. Discuss the measured trade-off
+briefly, including an unchanged or slower result. Restore prior settings when finished.
+
+Start here
+Confirm the session and explicit schema setup, then present S01 only. Later easy steps can be delegated without
+losing their UI observations. Save code and results in the notebook as we go; no exam-style submission is required.
